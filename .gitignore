@@ -1,0 +1,12 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+__pypackages__/
+
+# Environments
+.env
+.venv
+env/
+venv/
+
+# PyCharm
+.idea/
