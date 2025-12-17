@@ -11,7 +11,9 @@ dependencies = [
     "fastapi (==0.124.4)",
     "sqlalchemy (==2.0.45)",
     "pydantic-settings (==2.12.0)",
-    "pydantic (==2.12.5)"
+    "pydantic (==2.12.5)",
+    "alembic (==1.17.2)",
+    "asyncpg (==0.31.0)"
 ]
 
 [tool.poetry]

@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, TomlConfigSettingsSource
 from pydantic import Field
 
 from config import SETTINGS_PATH
-from models import env, toml
+from .models import env, toml
 
 
 class Config(BaseSettings):

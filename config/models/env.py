@@ -14,4 +14,16 @@ class PostgresConfig(ConfigBase):
     model_config = SettingsConfigDict(env_prefix="postgres_")
 
     host: str
+    port: int
+    user: str
     password: SecretStr
+    db: str
+
+    @property
+    def dsn(self) -> str:
+        """Возвращает DSN для asyncpg"""
+        return (
+            f"postgresql+asyncpg://{self.user}:"
+            f"{self.password.get_secret_value()}@"
+            f"{self.host}:{self.port}/{self.db}"
+        )
