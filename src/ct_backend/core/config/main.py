@@ -1,12 +1,15 @@
 from pydantic_settings import BaseSettings, TomlConfigSettingsSource
 from pydantic import Field
 
-from config import SETTINGS_PATH
-from .models import env, toml
+from ct_backend import SETTINGS_PATH
+from .models import toml
+from .models import env
 
 
 class Config(BaseSettings):
     postgres: env.PostgresConfig = Field(default_factory=env.PostgresConfig)
+    auth: env.AuthConfig = Field(default_factory=env.AuthConfig)
+
     fastapi: toml.FastapiConfig
 
     @classmethod
