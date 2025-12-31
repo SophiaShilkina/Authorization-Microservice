@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, DateTime, Boolean
 from sqlalchemy import func
 
-from .. import Base
+from .base import Base
 
 
 class User(Base):
@@ -18,3 +18,6 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    # ========== Metadata ===========
+    __tablename__ = "users"

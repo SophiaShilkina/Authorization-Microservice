@@ -1,7 +1,10 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic.types import SecretStr
 
-from ct_backend import SETTINGS_PATH
+PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.parent
+SETTINGS_PATH = PROJECT_ROOT / 'settings'
 
 
 class ConfigBase(BaseSettings):
@@ -36,3 +39,10 @@ class AuthConfig(ConfigBase):
     algorithm: str
     access_token_expire_minutes: int
     refresh_token_expire_days: int
+
+
+class FastAPIConfig(ConfigBase):
+    model_config = SettingsConfigDict(env_prefix='fastapi_')
+
+    host: str
+    port: int

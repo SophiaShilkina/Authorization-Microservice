@@ -64,3 +64,6 @@ class TokenService:
             return payload
         except JWTError:
             return {}
+
+
+token_service = TokenService()
