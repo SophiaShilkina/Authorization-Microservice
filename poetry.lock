@@ -493,6 +493,21 @@ standard = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.8)", "htt
 standard-no-fastapi-cloud-cli = ["email-validator (>=2.0.0)", "fastapi-cli[standard-no-fastapi-cloud-cli] (>=0.0.8)", "httpx (>=0.23.0,<1.0.0)", "jinja2 (>=3.1.5)", "python-multipart (>=0.0.18)", "uvicorn[standard] (>=0.12.0)"]
 
 [[package]]
+name = "fastapi-swagger-dark"
+version = "0.0.9"
+description = "FastAPI plugin to add dark theme swagger docs."
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "fastapi_swagger_dark-0.0.9-py3-none-any.whl", hash = "sha256:189ae4b8c4b58fc2faa19929517fc81495add85611b3117f650f15135d53f748"},
+    {file = "fastapi_swagger_dark-0.0.9.tar.gz", hash = "sha256:3f981af17ced385e53bd813c4ba08c99c8ca551c1a2957295abbf12c511d97d5"},
+]
+
+[package.extras]
+dev = ["changelog-gen (>=0.12)", "fastapi", "pre-commit (>=3.7.1)", "pytest (>=7.4.3)", "pytest-asyncio (>=0.21)", "pytest-cov (>=4.1.0)", "pytest-httpx (>=0.26.0)", "pytest-random-order (>=1.0)", "rcssmin", "ruff (>=0.6.4)"]
+
+[[package]]
 name = "greenlet"
 version = "3.3.0"
 description = "Lightweight in-process concurrent programming"
@@ -1167,4 +1182,4 @@ standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.6.3)
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "53aec2d8abbc53c84c8319389bbbc0306b459ae7d9b0f5e672e46df139504175"
+content-hash = "ffcbd26b7091c412b5b1adb421554953c1c571641b0bf0f757efe83a5143297d"
