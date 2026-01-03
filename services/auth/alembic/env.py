@@ -1,29 +1,59 @@
 import asyncio
 from logging.config import fileConfig
+import sys
+from pathlib import Path
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import async_engine_from_config
+
 from alembic import context
 
-from auth_service import config as proj_config
+BASE_DIR = Path(__file__).resolve().parents[1]
+SRC_DIR = BASE_DIR / "src"
+
+sys.path.append(str(SRC_DIR))
+
 from auth_service.database import Base
+from auth_service import config as proj_config
 
-dsn = proj_config.postgres.dsn
-
+# this is the Alembic Config object, which provides
+# access to the values within the .ini file in use.
 config = context.config
+
+# Interpret the config file for Python logging.
+# This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+# add your model's MetaData object here
+# for 'autogenerate' support
+# from myapp import mymodel
+# target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
-EXCLUDED_SCHEMAS = {"tiger", "topology", "tiger_data"}
-EXCLUDED_TABLES = {"spatial_ref_sys", "alembic_version"}
+
+# other values from the config, defined by the needs of env.py,
+# can be acquired:
+# my_important_option = config.get_main_option("my_important_option")
+# ... etc.
+config.set_main_option("sqlalchemy.url", proj_config.postgres.dsn)
 
 
 def run_migrations_offline() -> None:
-    """Миграции в offline-режиме."""
+    """Run migrations in 'offline' mode.
+
+    This configures the context with just a URL
+    and not an Engine, though an Engine is acceptable
+    here as well.  By skipping the Engine creation
+    we don't even need a DBAPI to be available.
+
+    Calls to context.execute() here emit the given string to the
+    script output.
+
+    """
+    url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=dsn,
+        url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -34,35 +64,21 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    """Конфигурируем Alembic для работы с соединением."""
-    context.configure(connection=connection,
-                      target_metadata=target_metadata,
-                      include_object=include_object,
-                      compare_type=True,
-                      compare_server_default=True,
-                      compare_index=True,
-                      version_table_schema="public",
-                      transactional=True)
+    context.configure(connection=connection, target_metadata=target_metadata)
 
     with context.begin_transaction():
         context.run_migrations()
 
 
-def include_object(object, name, type_, reflected, compare_to):
-    if reflected:
-        if hasattr(object, 'schema') and object.schema != 'public':
-            return False
-
-    if type_ == "table" and name in EXCLUDED_TABLES:
-        return False
-
-    return True
-
-
 async def run_async_migrations() -> None:
-    """Миграции в online-режиме с asyncpg."""
-    connectable = create_async_engine(
-        dsn,
+    """In this scenario we need to create an Engine
+    and associate a connection with the context.
+
+    """
+
+    connectable = async_engine_from_config(
+        config.get_section(config.config_ini_section, {}),
+        prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 

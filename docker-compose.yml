@@ -2,7 +2,7 @@ services:
   postgres:
     image: postgres:17-alpine
     environment:
-      POSTGRES_DB: ct
+      POSTGRES_DB: auth
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
     ports:
