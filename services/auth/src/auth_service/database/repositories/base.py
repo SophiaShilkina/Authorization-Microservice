@@ -6,7 +6,7 @@ from collections.abc import Sequence
 from sqlalchemy.sql import ColumnElement
 from sqlalchemy.orm import DeclarativeBase
 
-from ...database import async_session
+from auth_service.database import engine_management
 
 logger = logging.getLogger(__name__)
 

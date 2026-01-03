@@ -13,11 +13,3 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-
-  pgadmin:
-     image: dpage/pgadmin4
-     environment:
-       PGADMIN_DEFAULT_EMAIL: admin@email.com
-       PGADMIN_DEFAULT_PASSWORD: 1234
-     ports:
-       - "5050:80"

@@ -4,7 +4,7 @@ from typing import Optional, Dict, Any
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 
-from ct_backend import config
+from auth_service import config
 
 pwd_context = CryptContext(
     schemes=["argon2"],
@@ -34,7 +34,7 @@ class TokenService:
         """Хеширование пароля"""
         return pwd_context.hash(password)
 
-    def create_token(self, data: Dict[str, Any],
+    def _create_token(self, data: Dict[str, Any],
                      expires_delta: Optional[timedelta] = None,
                      token_type: str = "access") -> str:
         """Создание JWT токена"""
@@ -59,11 +59,11 @@ class TokenService:
 
     def create_access_token(self, data: Dict[str, Any]) -> str:
         """Создание access токена"""
-        return self.create_token(data, token_type="access")
+        return self._create_token(data, token_type="access")
 
     def create_refresh_token(self, data: Dict[str, Any]) -> str:
         """Создание refresh токена"""
-        return self.create_token(data, token_type="refresh")
+        return self._create_token(data, token_type="refresh")
 
     def decode_token(self, token: str) -> Dict[str, Any]:
         """Декодирование JWT токена"""

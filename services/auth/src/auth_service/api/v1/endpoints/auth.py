@@ -1,20 +1,19 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
-from ct_backend.api.schemas import auth as auth_schemas
-from ct_backend.api.schemas.errors import ErrorResponse
-from ct_backend.services import auth as auth_service
+from auth_service.api import schemas
+from auth_service.services import auth as auth_service
 
 router = APIRouter()
 
 
 @router.post('/register',
-             response_model=auth_schemas.UserCreateResponse,
+             response_model=schemas.UserCreateResponse,
              responses={
-                 409: {"model": ErrorResponse, "description": "User already exists"},
-                 500: {"model": ErrorResponse},
+                 409: {"model": schemas.ErrorResponse, "description": "User already exists"},
+                 500: {"model": schemas.ErrorResponse},
              })
-async def register_user(body: auth_schemas.UserCreateRequest):
+async def register_user(body: schemas.UserCreateRequest):
     data = await auth_service.process_register_user(body.username, body.email, body.role, body.password)
 
     return JSONResponse(

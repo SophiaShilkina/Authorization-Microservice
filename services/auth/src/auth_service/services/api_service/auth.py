@@ -2,8 +2,8 @@ from typing import Any
 
 from pydantic import EmailStr, SecretStr
 
-from ct_backend.database.repositories import user_repo
-from ct_backend.core.security import token_service
+from auth_service.database.repositories import user_repo
+from auth_service.core.security import token_service
 from . import errors_schemas
 
 

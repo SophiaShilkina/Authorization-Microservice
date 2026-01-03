@@ -3,24 +3,39 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic.types import SecretStr
 
-PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.parent
-SETTINGS_PATH = PROJECT_ROOT / 'settings'
+BASE_DIR = Path(__file__).resolve().parents[4]
+SETTINGS_PATH = BASE_DIR / 'settings'
 
+
+# =========== Base schema ==============
 
 class ConfigBase(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=SETTINGS_PATH / '.env', env_file_encoding='utf-8', extra='ignore'
+        case_sensitive=False,
+        env_nested_delimiter="__",
+        env_file=(SETTINGS_PATH / '.env.template', SETTINGS_PATH / '.env'),
+        env_file_encoding='utf-8',
+        extra='ignore'
     )
 
+
+# =========== Main schemas =============
 
 class PostgresConfig(ConfigBase):
     model_config = SettingsConfigDict(env_prefix='postgres_')
 
+    # Postgres Data Source Name
     host: str
     port: int
     user: str
     password: SecretStr
     db: str
+
+    # Engine settings
+    echo: bool = False
+    echo_pool: bool = False
+    pool_size: int = 20
+    max_overflow: int = 10
 
     @property
     def dsn(self) -> str:
@@ -37,12 +52,14 @@ class AuthConfig(ConfigBase):
 
     secret_key: SecretStr
     algorithm: str
-    access_token_expire_minutes: int
-    refresh_token_expire_days: int
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 7
 
 
 class FastAPIConfig(ConfigBase):
-    model_config = SettingsConfigDict(env_prefix='fastapi_')
+    host: str = 'localhost'
+    port: int = 8000
 
-    host: str
-    port: int
+
+class APIPrefixConfig(ConfigBase):
+    prefix: str = "/v1"

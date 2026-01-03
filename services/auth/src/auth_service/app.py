@@ -1,12 +1,20 @@
+from contextlib import asynccontextmanager
+
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from ct_backend.services import APIError
 import fastapi_swagger_dark as fsd
 
-from ct_backend.api import current_router
+from auth_service.database import engine_management
+from auth_service.services import APIError
+from auth_service.api import current_router
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):  # type: ignore
+    yield
+    await engine_management.dispose()
 
 middleware = [
     Middleware(
@@ -24,6 +32,7 @@ app = FastAPI(
     title="CaringTails Backend API",
     description="API для взаимодействия с бэкендом CaringTails.",
     version="1.0.0",
+    lifespan=lifespan,
     middleware=middleware,
     swagger_ui_parameters={
         "persistAuthorization": True,
