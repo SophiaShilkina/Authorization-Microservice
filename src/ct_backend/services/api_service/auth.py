@@ -25,7 +25,7 @@ async def process_register_user(username: str, email: EmailStr, role: str, passw
 
     hashed_password = token_service.get_password_hash(password.get_secret_value())
 
-    user_id = user_repo.create(dict(
+    user_id = await user_repo.create(dict(
         username=username,
         email=email,
         role=role,

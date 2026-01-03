@@ -6,8 +6,16 @@ from passlib.context import CryptContext
 
 from ct_backend import config
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
+pwd_context = CryptContext(
+    schemes=["argon2"],
+    default="argon2",
+    deprecated="auto",
+    argon2__time_cost=2,
+    argon2__memory_cost=65536,
+    argon2__parallelism=4,
+    argon2__salt_len=16,
+    argon2__hash_len=32,
+)
 
 class TokenService:
     def __init__(self):
@@ -27,8 +35,8 @@ class TokenService:
         return pwd_context.hash(password)
 
     def create_token(self, data: Dict[str, Any],
-                            expires_delta: Optional[timedelta] = None,
-                            token_type: str = "access") -> str:
+                     expires_delta: Optional[timedelta] = None,
+                     token_type: str = "access") -> str:
         """Создание JWT токена"""
         to_encode = data.copy()
 

@@ -6,8 +6,8 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import create_async_engine
 from alembic import context
 
-from config import config as proj_config
-from src.ct_backend.database.models import Base
+from ct_backend import config as proj_config
+from src.ct_backend.database.models.base import Base
 
 dsn = proj_config.postgres.dsn
 
