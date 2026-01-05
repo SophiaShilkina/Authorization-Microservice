@@ -1,7 +1,7 @@
 poetry.lock linguist-generated=true
 poetry.lock binary
 
-alembic/versions/*.py linguist-generated=true
+**/alembic/versions/*.py linguist-generated=true
 
 *.py text diff=python
 
