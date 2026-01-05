@@ -18,7 +18,8 @@ dependencies = [
     "python-jose[cryptography] (>=3.5.0,<4.0.0)",
     "python-json-logger (==4.0.0)",
     "fastapi-swagger-dark (>=0.0.9,<0.0.10)",
-    "passlib[argon2] (>=1.7.4,<2.0.0)"
+    "passlib[argon2] (>=1.7.4,<2.0.0)",
+    "orjson (>=3.11.5,<4.0.0)",
 ]
 
 [tool.poetry]

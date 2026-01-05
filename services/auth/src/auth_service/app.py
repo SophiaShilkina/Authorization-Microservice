@@ -1,20 +1,16 @@
-from contextlib import asynccontextmanager
+import logging
 
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware import Middleware
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import ORJSONResponse
 import fastapi_swagger_dark as fsd
 
-from auth_service.database import engine_management
 from auth_service.services import APIError
 from auth_service.api import current_router
 
+logger = logging.getLogger(__name__)
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):  # type: ignore
-    yield
-    await engine_management.dispose()
 
 middleware = [
     Middleware(
@@ -32,7 +28,7 @@ app = FastAPI(
     title="CaringTails Backend API",
     description="API для взаимодействия с бэкендом CaringTails.",
     version="1.0.0",
-    lifespan=lifespan,
+    default_response_class=ORJSONResponse,
     middleware=middleware,
     swagger_ui_parameters={
         "persistAuthorization": True,
@@ -44,7 +40,7 @@ app = FastAPI(
 
 @app.exception_handler(APIError)
 async def api_error_handler(request: Request, exc: APIError):
-    return JSONResponse(
+    return ORJSONResponse(
         status_code=exc.status_code,
         content={
             "status": exc.error,
@@ -55,7 +51,9 @@ async def api_error_handler(request: Request, exc: APIError):
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
-    return JSONResponse(
+    logger.exception("Unhandled exception")
+
+    return ORJSONResponse(
         status_code=500,
         content={
             "status": "Internal Server Error",

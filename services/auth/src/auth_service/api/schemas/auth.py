@@ -10,14 +10,6 @@ class UserCreateRequest(BaseModel):
         description='Почта, с которой регистрируется пользователь. Должна быть уникальной',
         examples=['user@example.com']
     )
-    username: str = Field(
-        ...,
-        min_length=3,
-        max_length=50,
-        pattern = r'^[a-zA-Z0-9_]+$',
-        description='Username, с которым регистрируется пользователь. Должен быть уникальным',
-        examples=['hitch']
-    )
     role: Literal['user', 'volunteer', 'shelter_worker'] = Field(
         ...,
         description='Роль пользователя',
@@ -57,11 +49,6 @@ class UserCreateResponse(BaseModel):
         ...,
         description='Почта пользователя',
         examples=['user@example.com']
-    )
-    username: str = Field(
-        ...,
-        description='Username пользователя',
-        examples=['hitch']
     )
     role: Literal['user', 'volunteer', 'shelter_worker'] = Field(
         ...,
