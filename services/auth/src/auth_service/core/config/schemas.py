@@ -59,7 +59,3 @@ class AuthConfig(ConfigBase):
 class FastAPIConfig(ConfigBase):
     host: str = 'localhost'
     port: int = 8000
-
-
-class APIPrefixConfig(ConfigBase):
-    prefix: str = "/v1"
