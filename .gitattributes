@@ -1,1 +1,11 @@
-*.lock binary linguist-generated=true
+poetry.lock linguist-generated=true
+poetry.lock binary
+
+alembic/versions/*.py linguist-generated=true
+
+*.py text diff=python
+
+*.toml text
+*.yml  text
+*.yaml text
+*.json text
