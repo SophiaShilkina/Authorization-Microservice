@@ -1,11 +1,9 @@
-from typing import AsyncGenerator
-
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession, AsyncEngine
 
 from auth_service import config
 
 
-class EngineManagement:
+class Database:
     def __init__(
             self,
             url: str,
@@ -29,18 +27,12 @@ class EngineManagement:
             class_=AsyncSession,
         )
 
-    async def dispose(self) -> None:
-        await self.engine.dispose()
 
-    async def session_getter(self) -> AsyncGenerator[AsyncSession, None]:
-        async with self.session_factory() as session:
-            yield session
-
-
-engine_management: EngineManagement = EngineManagement(
+db: Database = Database(
     url=config.postgres.dsn,
     echo=config.postgres.echo,
     echo_pool=config.postgres.echo_pool,
     pool_size=config.postgres.pool_size,
     max_overflow=config.postgres.max_overflow,
 )
+async_session = db.session_factory

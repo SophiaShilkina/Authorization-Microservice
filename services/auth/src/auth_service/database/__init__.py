@@ -1,4 +1,4 @@
 from .models.base import Base
-from .session import engine_management
+from .session import db, async_session
 
-__all__ = ['Base', 'engine_management']
+__all__ = ['Base', 'db', 'async_session']

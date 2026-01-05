@@ -6,7 +6,7 @@ from collections.abc import Sequence
 from sqlalchemy.sql import ColumnElement
 from sqlalchemy.orm import DeclarativeBase
 
-from auth_service.database import engine_management
+from auth_service.database import async_session
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ class BaseRepository:
                         .returning(self.model.id)  # type: ignore[attr-defined]
                     )
                     result = await session.execute(stmt)
-                    return result.scalars().all()
+                    return list(result.scalars().all())
 
         except Exception:
             logger.exception(f'Bulk create error')
@@ -136,7 +136,7 @@ class BaseRepository:
                     .values(**values)
                 )
                 result = await session.execute(stmt)
-                return result.rowcount == 1
+                return result.rowcount == 1  # type: ignore[attr-defined]
 
     async def _update_where(self, *, values: dict[str, Any], filters: Sequence[ColumnElement[bool]]) -> int:
         """
@@ -154,7 +154,7 @@ class BaseRepository:
                     .where(and_(*filters))
                 )
                 result = await session.execute(stmt)
-                return result.rowcount
+                return result.rowcount  # type: ignore[attr-defined]
 
     # =========== DELETE методы ===========
 
@@ -169,7 +169,7 @@ class BaseRepository:
             async with session.begin():
                 stmt = delete(self.model).where(self.model.id == id_)  # type: ignore[attr-defined]
                 result = await session.execute(stmt)
-                return result.rowcount == 1
+                return result.rowcount == 1  # type: ignore[attr-defined]
 
     async def _delete_where(self, filters: Sequence[ColumnElement[bool]]) -> int:
         """
@@ -182,4 +182,4 @@ class BaseRepository:
             async with session.begin():
                 stmt = delete(self.model).where(and_(*filters))
                 result = await session.execute(stmt)
-                return result.rowcount
+                return result.rowcount  # type: ignore[attr-defined]
