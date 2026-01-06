@@ -15,7 +15,7 @@ class RefreshToken(IdIntPKMixin, Base):
                                                ForeignKey("public.users.id",
                                                           onupdate="CASCADE",
                                                           ondelete="SET NULL"))
-    token_hash: Mapped[str] = mapped_column(String)
+    token_hash: Mapped[str] = mapped_column(String, index=True)
 
     is_revoked: Mapped[bool] = mapped_column(Boolean, default=False)
     is_under_investigation: Mapped[bool] = mapped_column(Boolean, default=False)
