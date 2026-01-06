@@ -47,15 +47,27 @@ class PostgresConfig(ConfigBase):
         )
 
 
-class AuthConfig(ConfigBase):
-    model_config = SettingsConfigDict(env_prefix='auth_')
+class FastAPIConfig(ConfigBase):
+    host: str = 'localhost'
+    port: int = 8000
+
+
+class JWTConfig(ConfigBase):
+    model_config = SettingsConfigDict(env_prefix='jwt_')
 
     secret_key: SecretStr
     algorithm: str
     access_token_expire_minutes: int = 30
+
+
+class RandomTokenConfig(ConfigBase):
     refresh_token_expire_days: int = 7
 
 
-class FastAPIConfig(ConfigBase):
-    host: str = 'localhost'
-    port: int = 8000
+class CookieConfig(ConfigBase):
+    name: str = "refresh_token"
+    httponly: bool = True
+    # TODO: secure = True в проде
+    secure: bool = False
+    samesite: str = "lax"
+    max_age: int = 30 * 24 * 60 * 60
