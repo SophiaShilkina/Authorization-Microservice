@@ -4,7 +4,7 @@ import re
 from pydantic import BaseModel, EmailStr, Field, SecretStr, field_validator
 
 
-class UserCreateRequest(BaseModel):
+class RegisterRequest(BaseModel):
     email: EmailStr = Field(
         ...,
         description='Почта, с которой регистрируется пользователь. Должна быть уникальной',
@@ -39,7 +39,7 @@ class UserCreateRequest(BaseModel):
         return v
 
 
-class UserCreateResponse(BaseModel):
+class RegisterResponse(BaseModel):
     id: int = Field(
         ...,
         description='ID пользователя в БД',
@@ -54,6 +54,25 @@ class UserCreateResponse(BaseModel):
         ...,
         description='Роль пользователя',
         examples=['user', 'volunteer', 'shelter_worker']
+    )
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr = Field(
+        ...,
+        description='Почта пользователя',
+        examples=['user@example.com']
+    )
+    password: SecretStr = Field(
+        ...,
+        description="Пароль пользователя"
+    )
+
+
+class LoginResponse(BaseModel):
+    access_token: str = Field(
+        ...,
+        description="Access токен"
     )
 
 
