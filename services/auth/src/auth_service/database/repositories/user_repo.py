@@ -6,12 +6,19 @@ class UserRepository(BaseRepository):
     def __init__(self):
         super().__init__(User)
 
-    async def get_by_email(self, email: str):
+    async def get_id_by_email(self, email: str):
         return await self._get_one(
             filters=[
                 User.email == email,
             ],
             columns=[User.id]
+        )
+
+    async def get_by_email(self, email: str):
+        return await self._get_one(
+            filters=[
+                User.email == email,
+            ]
         )
 
 

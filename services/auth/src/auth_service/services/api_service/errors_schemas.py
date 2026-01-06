@@ -7,9 +7,19 @@ class APIError(Exception):
         self.message = message
 
 
-class ConflictError(APIError):
-    status_code = 409
-    error = "Conflict"
+class BadRequestError(APIError):
+    status_code = 400
+    error = "Bad Request"
+
+
+class UnauthorizedError(APIError):
+    status_code = 401
+    error = "Unauthorized"
+
+
+class ForbiddenError(APIError):
+    status_code = 403
+    error = "Forbidden"
 
 
 class NotFoundError(APIError):
@@ -17,6 +27,6 @@ class NotFoundError(APIError):
     error = "Not Found"
 
 
-class BadRequestError(APIError):
-    status_code = 400
-    error = "Bad Request"
+class ConflictError(APIError):
+    status_code = 409
+    error = "Conflict"
