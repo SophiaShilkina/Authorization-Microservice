@@ -12,3 +12,11 @@ class AuthorizationFailed(DomainValidationError):
 
 class AuthenticationFailed(DomainValidationError):
     pass
+
+
+class Unauthorized(DomainValidationError):
+    pass
+
+
+class TokenExpired(DomainValidationError):
+    pass

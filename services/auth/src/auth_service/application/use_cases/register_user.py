@@ -1,11 +1,11 @@
 from auth_service.domain.value_objects import EmailVO, PasswordVO, UsernameVO
 from auth_service.domain import expections
 from auth_service.domain.entities import UserDM
-from ..dto import RegisterCommand, RegisterResult
+from ..dto import RegisterUserCommand, RegisterUserResult
 from ..ports import IUserRepository, IPasswordHasher, IEmailService
 
 
-class RegisterUseCase:
+class RegisterUserUseCase:
     def __init__(self,
                  user_repo: IUserRepository,
                  password_hasher: IPasswordHasher,
@@ -15,7 +15,7 @@ class RegisterUseCase:
         self._password_hasher = password_hasher
         self._email_service = email_service
 
-    async def execute(self, cmd: RegisterCommand) -> RegisterResult:
+    async def execute(self, cmd: RegisterUserCommand) -> RegisterUserResult:
         email = EmailVO(cmd.email)
         password = PasswordVO(cmd.password)
         username = UsernameVO(cmd.username)
@@ -37,7 +37,7 @@ class RegisterUseCase:
             username=user.username.value,
         )
 
-        return RegisterResult(
+        return RegisterUserResult(
             id=user_id,
             email=user.email.value,
             username=user.username.value,

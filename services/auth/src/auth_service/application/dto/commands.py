@@ -4,28 +4,40 @@ from datetime import datetime
 
 
 @dataclass(frozen=True)
-class RegisterCommand:
+class RegisterUserCommand:
     email: str
     username: str
     password: str
 
 
 @dataclass(frozen=True)
-class RegisterResult:
+class RegisterUserResult:
     id: UUID
     email: str
     username: str
 
 
 @dataclass(frozen=True)
-class LoginCommand:
+class LoginUserCommand:
     email: str
     password: str
     context: dict
 
 
 @dataclass(frozen=True)
-class LoginResult:
+class LoginUserResult:
+    access_token: str
+    refresh_token: str
+    expires_at: datetime
+
+
+@dataclass(frozen=True)
+class RefreshTokenCommand:
+    refresh_token: str
+
+
+@dataclass(frozen=True)
+class RefreshTokenResult:
     access_token: str
     refresh_token: str
     expires_at: datetime

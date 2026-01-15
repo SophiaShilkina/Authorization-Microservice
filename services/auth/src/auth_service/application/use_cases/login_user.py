@@ -1,12 +1,12 @@
 from auth_service.domain.value_objects import EmailVO, PasswordVO
 from auth_service.domain import expections
 from auth_service.domain.entities import RefreshSessionDM
-from ..dto import LoginCommand, LoginResult, AccessTokenPayloadDTO
+from ..dto import LoginUserCommand, LoginUserResult, AccessTokenPayloadDTO
 from ..ports import IUserRepository, IRefreshSessionRepository, IPasswordHasher, ITokenService, IClock
 from ..policies import TokenPolicy
 
 
-class LoginUseCase:
+class LoginUserUseCase:
     def __init__(self,
                  user_repo: IUserRepository,
                  refresh_session_repo: IRefreshSessionRepository,
@@ -22,7 +22,7 @@ class LoginUseCase:
         self._policy = policy
         self._clock = clock
 
-    async def execute(self, cmd: LoginCommand) -> LoginResult:
+    async def execute(self, cmd: LoginUserCommand) -> LoginUserResult:
         email = EmailVO(cmd.email)
         password = PasswordVO(cmd.password)
 
@@ -55,7 +55,7 @@ class LoginUseCase:
         )
         access_token = self._token_service.issue_access_token(payload)
 
-        return LoginResult(
+        return LoginUserResult(
             access_token=access_token.value,
             refresh_token=raw_refresh,
             expires_at=access_token.expires_at,

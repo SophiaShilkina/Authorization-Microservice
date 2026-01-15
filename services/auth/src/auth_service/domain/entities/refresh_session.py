@@ -45,8 +45,8 @@ class RefreshSessionDM:
     def is_revoked(self) -> bool:
         return self.revoked
 
-    def is_expired(self) -> bool:
-        return datetime.now() > self.expires_at
+    def is_expired(self, time: datetime) -> bool:
+        return time > self.expires_at
 
     def revoke(self) -> None:
         if self.is_revoked():
@@ -65,8 +65,8 @@ class RefreshSessionDM:
 
         return new_session
 
-    def is_valid(self) -> bool:
-        return not self.is_revoked() and not self.is_expired()
+    def is_valid(self, time: datetime) -> bool:
+        return not self.is_revoked() and not self.is_expired(time)
 
     def add_domain_event(self, event) -> None:
         self._domain_events.append(event)
