@@ -8,6 +8,8 @@ from ..expections import DomainValidationError
 class EmailVO:
     value: str
 
+    _PATTERN = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
     def __post_init__(self):
         if not isinstance(self.value, str):
             raise DomainValidationError(f'Email must be a string, got {type(self.value)}')
@@ -31,10 +33,8 @@ class EmailVO:
 
         object.__setattr__(self, "value", normalized)
 
-    @staticmethod
-    def _is_valid_email(email: str) -> bool:
-        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        return bool(re.match(pattern, email))
+    def _is_valid_email(self, email: str) -> bool:
+        return bool(re.match(self._PATTERN, email))
 
     def __str__(self) -> str:
         return self.value

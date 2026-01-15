@@ -5,8 +5,20 @@ from auth_service.domain.expections import DomainValidationError
 
 
 def test_valid_password():
-    password = PasswordVO("ValidP@ss1")
-    assert password.value == "ValidP@ss1"
+    password = PasswordVO('ValidP@ss1')
+    assert password.value == 'ValidP@ss1'
+
+
+@pytest.mark.parametrize('invalid_value', [None, 123])
+def test_username_invalid_type(invalid_value):
+    with pytest.raises(DomainValidationError):
+        PasswordVO(invalid_value)  # type: ignore
+
+
+@pytest.mark.parametrize('invalid_value', ['', ' '])
+def test_username_empty_or_blank(invalid_value):
+    with pytest.raises(DomainValidationError):
+        PasswordVO(invalid_value)
 
 
 def test_invalid_password_min_length():
@@ -23,7 +35,7 @@ def test_invalid_password_max_length():
 
 def test_password_contains_spaces():
     with pytest.raises(DomainValidationError):
-        PasswordVO("With Space1@")
+        PasswordVO('With Space1@')
 
 
 def test_password_missing_uppercase():
@@ -48,7 +60,7 @@ def test_password_missing_special_char():
 
 def test_common_password():
     with pytest.raises(DomainValidationError):
-        PasswordVO('password1@')
+        PasswordVO('password1@Q')
 
 
 def test_password_string_representation():

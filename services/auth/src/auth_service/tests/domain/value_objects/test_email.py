@@ -52,15 +52,16 @@ def test_invalid_email(invalid_email):
         EmailVO(invalid_email)
 
 
-@pytest.mark.parametrize('invalid_email', [
-    None,
-    123,
-    '',
-    ' ',
-])
-def test_invalid_email_type_or_empty(invalid_email):
+@pytest.mark.parametrize('invalid_value', [None, 123])
+def test_username_invalid_type(invalid_value):
     with pytest.raises(DomainValidationError):
-        EmailVO(invalid_email)
+        EmailVO(invalid_value)  # type: ignore
+
+
+@pytest.mark.parametrize('invalid_value', ['', ' '])
+def test_username_empty_or_blank(invalid_value):
+    with pytest.raises(DomainValidationError):
+        EmailVO(invalid_value)
 
 
 @pytest.mark.parametrize('invalid_email', [
