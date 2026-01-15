@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from uuid import UUID
+from datetime import datetime
 
 
 @dataclass(frozen=True)
@@ -27,3 +28,4 @@ class LoginCommand:
 class LoginResult:
     access_token: str
     refresh_token: str
+    expires_at: datetime
