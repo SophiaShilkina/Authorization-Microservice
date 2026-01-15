@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 import fastapi_swagger_dark as fsd
 
-from auth_service.services import APIError
+from auth_service.domain.expections import APIError
 from auth_service.api import current_router
 
 logger = logging.getLogger(__name__)

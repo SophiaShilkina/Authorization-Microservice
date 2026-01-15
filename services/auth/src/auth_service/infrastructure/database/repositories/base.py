@@ -1,12 +1,13 @@
 import logging
 from typing import Type, Any
+from uuid import UUID
 
 from sqlalchemy import select, update, delete, and_, insert
 from collections.abc import Sequence
 from sqlalchemy.sql import ColumnElement
 from sqlalchemy.orm import DeclarativeBase
 
-from auth_service.database import async_session
+from auth_service.infrastructure.database import async_session
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +72,7 @@ class BaseRepository:
 
     # =========== CREATE методы ===========
 
-    async def create(self, data: dict[str, Any]) -> int:
+    async def create(self, data: dict[str, Any]) -> int | UUID:
         """
         Создать новую запись
         :param data: Данные для заполнения в формате словаря

@@ -3,10 +3,10 @@ from datetime import datetime
 
 from pydantic import EmailStr, SecretStr
 
-from auth_service.database.repositories import user_repo, refresh_token_repo
-from auth_service.core.security import password_hasher, jwt_service, random_token_service
+from auth_service.infrastructure.database.repositories import user_repo, refresh_token_repo
+from auth_service.infrastructure.security import password_hasher, jwt_service, random_token_service
 from auth_service.utils import extract_device_info, extract_ip_address
-from . import errors_schemas
+from auth_service.domain import dto, expections
 
 
 async def process_register_user(email: EmailStr, role: str, password: SecretStr) -> dict[str, Any]:
@@ -39,21 +39,17 @@ async def process_register_user(email: EmailStr, role: str, password: SecretStr)
 
 
 async def process_login_user(request_context: dict[str, Any], email: EmailStr, password: SecretStr) -> dict[str, Any]:
-    user = await user_repo.get_by_email(email)
-    plain_password = password.get_secret_value()
+    user = await user_repo.get_all_by_email(email)
 
     if not user:
-        password_hasher.verify_password(plain_password, password_hasher.dummy_hash)
-        raise errors_schemas.UnauthorizedError("Invalid email or password")
+        password_hasher.verify_password(user.password, password_hasher.dummy_hash)
+        raise expections.UnauthorizedError('Invalid email or password')
 
-    if not password_hasher.verify_password(plain_password,user["hashed_password"]):
-        raise errors_schemas.UnauthorizedError("Invalid email or password")
+    if not password_hasher.verify_password(user.password, user.hashed_password):
+        raise expections.UnauthorizedError('Invalid email or password')
 
-    if not user["is_active"] or user["is_blocked"]:
-        raise errors_schemas.ForbiddenError('The user account is blocked or disabled')
+    auth_domain.authenticate(dto.UserAuthenticationDTO(...))
 
-    if not user["is_verified"]:
-        raise errors_schemas.ForbiddenError('The account has not been verified')
 
     access_token = jwt_service.create_access_token({
         "sub": str(user["id"]),

@@ -1,4 +1,4 @@
-from auth_service.core.config import Config
+from auth_service.config import Config
 
 config = Config.load()
 

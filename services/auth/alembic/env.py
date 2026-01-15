@@ -14,7 +14,7 @@ SRC_DIR = BASE_DIR / "src"
 
 sys.path.append(str(SRC_DIR))
 
-from auth_service.database import Base
+from auth_service.infrastructure.database import Base
 from auth_service import config as proj_config
 
 # this is the Alembic Config object, which provides

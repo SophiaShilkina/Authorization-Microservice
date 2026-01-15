@@ -43,6 +43,3 @@ class RefreshTokenRepository(BaseRepository):
             token_id,
             {"last_used_at": datetime.now()}
         )
-
-
-refresh_token_repo = RefreshTokenRepository()

@@ -33,6 +33,3 @@ class JWTService:
             return payload
         except JWTError:
             return {}
-
-
-jwt_service = JWTService()

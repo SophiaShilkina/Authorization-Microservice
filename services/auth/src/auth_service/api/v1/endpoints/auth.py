@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Response
 
 from auth_service.api import schemas
-from auth_service.services import auth as auth_service
+from auth_service.application import auth_service as auth_service
 from auth_service.utils import get_request_context
 from auth_service import config
 

@@ -16,6 +16,3 @@ class RandomTokenService:
     @staticmethod
     def hash_token(token: str) -> str:
         return hashlib.sha256(token.encode()).hexdigest()
-
-
-random_token_service = RandomTokenService()

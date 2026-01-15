@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
 from pydantic.types import SecretStr
 
 BASE_DIR = Path(__file__).resolve().parents[4]
@@ -71,3 +72,17 @@ class CookieConfig(ConfigBase):
     secure: bool = False
     samesite: str = "lax"
     max_age: int = 30 * 24 * 60 * 60
+
+
+# ========== Config ==============
+
+class Config(BaseSettings):
+    postgres: PostgresConfig = Field(default_factory=PostgresConfig)
+    fastapi: FastAPIConfig = Field(default_factory=FastAPIConfig)
+    jwt: JWTConfig = Field(default_factory=JWTConfig)
+    random_token: RandomTokenConfig = Field(default_factory=RandomTokenConfig)
+    cookie: CookieConfig = Field(default_factory=CookieConfig)
+
+    @classmethod
+    def load(cls) -> "Config":
+        return cls()  # type: ignore

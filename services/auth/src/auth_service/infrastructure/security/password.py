@@ -16,8 +16,7 @@ pwd_context = CryptContext(
 
 
 class PasswordHasher:
-    _dummy_password: str = secrets.token_urlsafe(32)
-    dummy_hash: Optional[str] = None
+    _dummy_hash: Optional[str] = None
 
     def __init__(self):
         self._generate_dummy_hash()
@@ -28,13 +27,13 @@ class PasswordHasher:
         return pwd_context.hash(password)
 
     @staticmethod
-    def verify_password(plain_password: str, hashed_password: str) -> bool:
+    def verify(plain_password: str, hashed_password: str) -> bool:
         """Проверка пароля"""
         return pwd_context.verify(plain_password, hashed_password)
 
+    def dummy_verify(self, plain_password: str) -> None:
+        pwd_context.verify(plain_password, self._dummy_hash)
+
     def _generate_dummy_hash(self) -> None:
         """Генерация фиктивного хеша один раз при старте"""
-        self.dummy_hash = pwd_context.hash(self._dummy_password)
-
-
-password_hasher = PasswordHasher()
+        self._dummy_hash = pwd_context.hash(secrets.token_urlsafe(32))
