@@ -22,7 +22,6 @@ class RefreshTokenUseCase:
         now = self._clock.now()
 
         session = await self._refresh_session_repo.get_by_hash(refresh_hash)
-
         if not session or not session.is_valid(now):
             raise expections.Unauthorized('Invalid or revoked token')
 
