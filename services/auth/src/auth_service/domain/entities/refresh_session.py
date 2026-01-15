@@ -50,7 +50,7 @@ class RefreshSessionDM:
 
     def revoke(self) -> None:
         if self.is_revoked():
-            raise DomainValidationError("Session already revoked")
+            raise DomainValidationError('Session already revoked')
 
         self.revoked = True
 

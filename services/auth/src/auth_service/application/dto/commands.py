@@ -49,5 +49,10 @@ class LogoutUserCommand:
 
 
 @dataclass(frozen=True)
-class LogoutUserResult:
-    check: bool
+class LogoutAllUserCommand:
+    access_token: str
+
+
+@dataclass(frozen=True)
+class LogoutAllUserResult:
+    revoked_sessions: int

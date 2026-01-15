@@ -6,7 +6,8 @@ __all__ = [
     'RefreshTokenCommand',
     'RefreshTokenResult',
     'LogoutUserCommand',
-    'LogoutUserResult',
+    'LogoutAllUserCommand',
+    'LogoutAllUserResult',
     'AccessTokenPayloadDTO',
 ]
 
@@ -18,6 +19,7 @@ from .commands import (
     RefreshTokenCommand,
     RefreshTokenResult,
     LogoutUserCommand,
-    LogoutUserResult,
+    LogoutAllUserCommand,
+    LogoutAllUserResult,
 )
 from .dtos import AccessTokenPayloadDTO
