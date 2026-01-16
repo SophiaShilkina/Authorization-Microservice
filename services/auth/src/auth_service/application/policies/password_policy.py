@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from ..expections import DomainValidationError
+from auth_service.domain.exceptions import DomainValidationError
 
 
 @dataclass(frozen=True, slots=True)
-class PasswordVO:
+class PasswordPolicy:
     value: str
 
     _MIN_LENGTH = 8
@@ -16,9 +16,6 @@ class PasswordVO:
         self._check_common()
 
     def _validate_basic(self):
-        if not isinstance(self.value, str):
-            raise DomainValidationError(f'Password must be a string, got {type(self.value)}')
-
         if len(self.value) < self._MIN_LENGTH or len(self.value) > self._MAX_LENGTH:
             raise DomainValidationError('Password does not fit the length')
 
