@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import re
 
-from ..expections import DomainValidationError
+from ..exceptions import InvalidTypeError, EmptyValueError, InvalidFormatError
 
 
 @dataclass(frozen=True, slots=True)
@@ -12,24 +12,27 @@ class EmailVO:
 
     def __post_init__(self):
         if not isinstance(self.value, str):
-            raise DomainValidationError(f'Email must be a string, got {type(self.value)}')
+            raise InvalidTypeError('Email must be a string')
+
+        if not self.value.strip():
+            raise EmptyValueError('Email cannot be empty')
 
         normalized = self.value.strip().lower()
 
         if not self._is_valid_email(normalized):
-            raise DomainValidationError(f'Invalid email format: {self.value}')
+            raise InvalidFormatError(f'Invalid email format: {self.value}')
 
         if ".." in normalized:
-            raise DomainValidationError("Email cannot contain consecutive dots")
+            raise InvalidFormatError('Email cannot contain consecutive dots')
 
         local, domain = normalized.split("@", 1)
 
         if domain.startswith('-') or domain.endswith('-'):
-            raise DomainValidationError('Domain cannot start or end with "-"')
+            raise InvalidFormatError('Domain cannot start or end with "-"')
 
         for label in domain.split('.'):
             if label.startswith('-') or label.endswith('-'):
-                raise DomainValidationError('Domain labels cannot start or end with "-"')
+                raise InvalidFormatError('Domain labels cannot start or end with "-"')
 
         object.__setattr__(self, "value", normalized)
 

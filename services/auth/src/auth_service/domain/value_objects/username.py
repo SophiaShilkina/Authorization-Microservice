@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import re
 
-from ..expections import DomainValidationError
+from ..exceptions import InvalidTypeError, EmptyValueError, InvalidLengthError, InvalidFormatError
 
 
 @dataclass(frozen=True, slots=True)
@@ -14,19 +14,22 @@ class UsernameVO:
 
     def __post_init__(self):
         if not isinstance(self.value, str):
-            raise DomainValidationError(f'Username must be a string, got {type(self.value)}')
+            raise InvalidTypeError('Username must be a string')
+
+        if not self.value.strip():
+            raise EmptyValueError('Username cannot be empty')
 
         if len(self.value) < self._MIN_LENGTH or len(self.value) > self._MAX_LENGTH:
-            raise DomainValidationError('Username does not fit the length')
+            raise InvalidLengthError('Username does not fit the length')
 
         if not self._is_valid_username(self.value):
-            raise DomainValidationError('Username can only contain numbers, dashes, underscores, and Latin letters')
+            raise InvalidFormatError('Username can only contain numbers, dashes, underscores, and Latin letters')
 
         if set(self.value) <= {'_', '-'}:
-            raise DomainValidationError('Username cannot consist only of special characters')
+            raise InvalidFormatError('Username cannot consist only of special characters')
 
         if self.value.startswith(('_', '-')) or self.value.endswith(('_', '-')):
-            raise DomainValidationError('Username cannot start or end with underscore or hyphen')
+            raise InvalidFormatError('Username cannot start or end with underscore or hyphen')
 
     def _is_valid_username(self, username: str) -> bool:
         return bool(re.match(self._PATTERN, username))

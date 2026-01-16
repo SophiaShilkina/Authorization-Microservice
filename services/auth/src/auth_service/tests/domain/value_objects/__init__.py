@@ -1,0 +1,1 @@
+# pytest auth_service/tests/domain/value_objects/ --cov=auth_service.domain.value_objects --cov-report=term-missing
