@@ -1,0 +1,1 @@
+# pytest auth_service/tests/domain/entities/ --cov=auth_service.domain.entities --cov-report=term-missing

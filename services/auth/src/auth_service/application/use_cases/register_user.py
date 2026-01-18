@@ -1,8 +1,9 @@
-from auth_service.domain.value_objects import EmailVO, PasswordVO, UsernameVO
-from auth_service.domain import expections
+from auth_service.domain.value_objects import EmailVO, UsernameVO
+from auth_service.domain import exceptions
 from auth_service.domain.entities import UserDM
 from ..dto import RegisterUserCommand, RegisterUserResult
 from ..ports import IUserRepository, IPasswordHasher, IEmailService
+from ..policies import PasswordPolicy
 
 
 class RegisterUserUseCase:
@@ -17,18 +18,18 @@ class RegisterUserUseCase:
 
     async def execute(self, cmd: RegisterUserCommand) -> RegisterUserResult:
         email = EmailVO(cmd.email)
-        password = PasswordVO(cmd.password)
+        password = PasswordPolicy(cmd.password)
         username = UsernameVO(cmd.username)
 
         if await self._user_repo.exists_by_email(email):
-            raise expections.EmailAlreadyExistsExc('User with this email already exists')
+            raise exceptions.EmailAlreadyExistsExc('User with this email already exists')
 
-        hashed_password = self._password_hasher.get_password_hash(password)
+        password_hash = self._password_hasher.get_password_hash(password.value)
 
         user = UserDM.register(
             email=email,
             username=username,
-            hashed_password=hashed_password,
+            password_hash=password_hash,
         )
         user_id = await self._user_repo.create(user)
 

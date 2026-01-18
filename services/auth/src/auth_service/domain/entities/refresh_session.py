@@ -2,16 +2,17 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from uuid import UUID, uuid4
 
+from ..value_objects import TokenHashVO, ExpiresAtVO
 from ..exceptions import InvariantViolation
 from ..events import CreateRefreshSessionEvent, DomainEvent
 
 
-@dataclass
+@dataclass(slots=True)
 class RefreshSessionDM:
     _id: UUID
     _user_id: UUID
-    _token_hash: str
-    _expires_at: datetime
+    _token_hash: TokenHashVO
+    _expires_at: ExpiresAtVO
     _revoked: bool
     _domain_events: list[DomainEvent] = field(default_factory=list, init=False, repr=False)
 
@@ -24,11 +25,11 @@ class RefreshSessionDM:
         return self._user_id
 
     @property
-    def token_hash(self) -> str:
+    def token_hash(self) -> TokenHashVO:
         return self._token_hash
 
     @property
-    def expires_at(self) -> datetime:
+    def expires_at(self) -> ExpiresAtVO:
         return self._expires_at
 
     @property
@@ -39,8 +40,8 @@ class RefreshSessionDM:
     def create(
             cls,
             user_id: UUID,
-            token_hash: str,
-            expires_at: datetime,
+            token_hash: TokenHashVO,
+            expires_at: ExpiresAtVO,
     ) -> 'RefreshSessionDM':
 
         refresh_session = cls(
@@ -55,7 +56,7 @@ class RefreshSessionDM:
             CreateRefreshSessionEvent(
                 session_id=refresh_session.id,
                 user_id=refresh_session.user_id,
-                expires_at=refresh_session.expires_at,
+                expires_at=refresh_session.expires_at.value,
                 occurred_at=datetime.now()
             )
         )
@@ -63,7 +64,7 @@ class RefreshSessionDM:
         return refresh_session
 
     def is_expired(self, time: datetime) -> bool:
-        return time > self.expires_at
+        return self.expires_at.is_expired(time)
 
     def is_valid(self, time: datetime) -> bool:
         return not self.is_revoked and not self.is_expired(time)
@@ -75,8 +76,8 @@ class RefreshSessionDM:
 
     def rotate(
             self,
-            new_token_hash: str,
-            expires_at: datetime
+            new_token_hash: TokenHashVO,
+            expires_at: ExpiresAtVO
     ) -> 'RefreshSessionDM':
 
         self.revoke()
