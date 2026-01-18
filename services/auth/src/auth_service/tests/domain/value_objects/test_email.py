@@ -1,17 +1,7 @@
 import pytest
 
 from auth_service.domain.value_objects import EmailVO
-from auth_service.domain.expections import DomainValidationError
-
-
-def test_email_is_trimmed():
-    email = EmailVO("  test@example.com  ")
-    assert email.value == "test@example.com"
-
-
-def test_email_is_lowercased():
-    email = EmailVO("Test@Example.COM")
-    assert email.value == "test@example.com"
+from auth_service.domain.exceptions import InvalidTypeError, EmptyValueError, InvalidFormatError
 
 
 @pytest.mark.parametrize("valid_email", [
@@ -32,6 +22,16 @@ def test_valid_email(valid_email):
     assert email.value == valid_email
 
 
+def test_email_is_trimmed():
+    email = EmailVO("  test@example.com  ")
+    assert email.value == "test@example.com"
+
+
+def test_email_is_lowercased():
+    email = EmailVO("Test@Example.COM")
+    assert email.value == "test@example.com"
+
+
 @pytest.mark.parametrize('invalid_email', [
     'plainaddress',
     '@missing-local.com',
@@ -48,19 +48,19 @@ def test_valid_email(valid_email):
     'email@example.c'
 ])
 def test_invalid_email(invalid_email):
-    with pytest.raises(DomainValidationError):
+    with pytest.raises(InvalidFormatError):
         EmailVO(invalid_email)
 
 
 @pytest.mark.parametrize('invalid_value', [None, 123])
-def test_username_invalid_type(invalid_value):
-    with pytest.raises(DomainValidationError):
+def test_email_invalid_type(invalid_value):
+    with pytest.raises(InvalidTypeError):
         EmailVO(invalid_value)  # type: ignore
 
 
 @pytest.mark.parametrize('invalid_value', ['', ' '])
-def test_username_empty_or_blank(invalid_value):
-    with pytest.raises(DomainValidationError):
+def test_email_empty_or_blank(invalid_value):
+    with pytest.raises(EmptyValueError):
         EmailVO(invalid_value)
 
 
@@ -71,5 +71,5 @@ def test_username_empty_or_blank(invalid_value):
     'email@example-.com',
 ])
 def test_invalid_email_structure(invalid_email):
-    with pytest.raises(DomainValidationError):
+    with pytest.raises(InvalidFormatError):
         EmailVO(invalid_email)
