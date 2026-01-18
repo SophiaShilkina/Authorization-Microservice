@@ -1,6 +1,7 @@
-from auth_service.domain import expections
+from auth_service.domain.value_objects import TokenVO
 from ..ports import IRefreshSessionRepository, ITokenService, IClock
 from ..dto import LogoutUserCommand
+from ..exceptions import AuthenticationFailed, TokenExpired
 
 
 class LogoutUserUseCase:
@@ -14,16 +15,16 @@ class LogoutUserUseCase:
         self._clock = clock
 
     async def execute(self, cmd: LogoutUserCommand) -> None:
-        refresh_hash = self._token_service.hash_token(cmd.refresh_token)
+        refresh_hash = self._token_service.hash_token(TokenVO(cmd.refresh_token))
 
         session = await self._refresh_session_repo.get_by_hash(refresh_hash)
         if not session:
-            raise expections.Unauthorized('Invalid or revoked token')
+            raise AuthenticationFailed('Invalid or revoked token')
 
         now = self._clock.now()
 
         if session.is_expired(now):
-            raise expections.Unauthorized('Token expired')
+            raise TokenExpired('Token expired')
 
         session.revoke()
 
