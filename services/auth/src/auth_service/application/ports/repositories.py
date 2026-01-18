@@ -2,7 +2,7 @@ from typing import Protocol
 from uuid import UUID
 
 from auth_service.domain.entities import UserDM, RefreshSessionDM
-from auth_service.domain.value_objects import EmailVO
+from auth_service.domain.value_objects import EmailVO, TokenHashVO
 
 
 class IUserRepository(Protocol):
@@ -22,7 +22,7 @@ class IRefreshSessionRepository(Protocol):
 
     async def update(self, session: RefreshSessionDM) -> None: ...
 
-    async def get_by_hash(self, refresh_hash: str) -> RefreshSessionDM | None: ...
+    async def get_by_hash(self, refresh_hash: TokenHashVO) -> RefreshSessionDM | None: ...
 
     async def revoke_all_by_user_id(self, user_id: UUID) -> int: ...
 
