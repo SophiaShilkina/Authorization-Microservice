@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from auth_service.domain.exceptions import DomainValidationError
+from ...exceptions import InvalidLengthError, InvalidFormatError
 
 
 @dataclass(frozen=True, slots=True)
@@ -17,28 +17,28 @@ class PasswordPolicy:
 
     def _validate_basic(self):
         if len(self.value) < self._MIN_LENGTH or len(self.value) > self._MAX_LENGTH:
-            raise DomainValidationError('Password does not fit the length')
+            raise InvalidLengthError('Password does not fit the length')
 
         if ' ' in self.value:
-            raise DomainValidationError('Password must not contain spaces')
+            raise InvalidFormatError('Password must not contain spaces')
 
         if not any(c.isupper() for c in self.value):
-            raise DomainValidationError('Password must contain at least one uppercase letter')
+            raise InvalidFormatError('Password must contain at least one uppercase letter')
 
         if not any(c.islower() for c in self.value):
-            raise DomainValidationError('Password must contain at least one lowercase letter')
+            raise InvalidFormatError('Password must contain at least one lowercase letter')
 
         if not any(c.isdigit() for c in self.value):
-            raise DomainValidationError('Password must contain at least one digit')
+            raise InvalidFormatError('Password must contain at least one digit')
 
         if not any(c in '!@#$%^&*()_+-=[]{}|;:,.<>?`~' for c in self.value):
-            raise DomainValidationError('Password must contain at least one special character')
+            raise InvalidFormatError('Password must contain at least one special character')
 
     def _check_common(self):
         lowered = self.value.lower()
         for common in self._COMMON:
             if common in lowered:
-                raise DomainValidationError('Password is too common')
+                raise InvalidFormatError('Password is too common')
 
     def __str__(self):
         return '********'
