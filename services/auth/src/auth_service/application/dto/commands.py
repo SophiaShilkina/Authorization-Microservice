@@ -8,11 +8,14 @@ class RegisterUserCommand:
     username: str
     password: str
 
+    context: dict
+
 
 @dataclass(frozen=True, slots=True)
 class LoginUserCommand:
     email: str
     password: str
+
     context: dict
 
 

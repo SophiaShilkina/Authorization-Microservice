@@ -1,5 +1,4 @@
 from typing import Protocol
-from datetime import timedelta
 
 from auth_service.domain.value_objects import TokenVO, TokenHashVO, PasswordHashVO
 from auth_service.application.security.policies import PasswordPolicy
@@ -26,9 +25,3 @@ class ITokenService(Protocol):
     def issue_access_token(self, payload: AccessTokenPayload) -> AccessToken: ...
 
     def verify_access_token(self, token: AccessToken) -> AccessTokenPayload: ...
-
-
-class IRateLimitStorage(Protocol):
-    async def increment(self, key: str, window: timedelta) -> int: ...
-
-    async def reset(self, key: str) -> None: ...

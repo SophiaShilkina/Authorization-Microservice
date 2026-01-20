@@ -7,3 +7,7 @@ class BusinessRuleViolation(ApplicationError):
 
 class AlreadyExists(BusinessRuleViolation):
     pass
+
+
+class RateLimitExceeded(BusinessRuleViolation):
+    pass

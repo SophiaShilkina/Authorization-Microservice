@@ -44,4 +44,4 @@ class PasswordPolicy:
         return '********'
 
     def __repr__(self):
-        return 'PasswordVO(value="********")'
+        return 'PasswordPolicy(value="********")'

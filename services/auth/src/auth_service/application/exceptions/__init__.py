@@ -8,9 +8,10 @@ __all__ = [
     'BusinessRuleViolation',
     'InvalidLengthError',
     'InvalidFormatError',
+    'RateLimitExceeded',
 ]
 
 from .base import ApplicationError
 from .authorization import AuthenticationFailed, TokenExpired, AuthorizationError, PermissionDenied
-from .violations import BusinessRuleViolation, AlreadyExists
+from .violations import BusinessRuleViolation, AlreadyExists, RateLimitExceeded
 from .validation import InvalidLengthError, InvalidFormatError
