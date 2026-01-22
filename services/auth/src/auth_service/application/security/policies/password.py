@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ...exceptions import InvalidLengthError, InvalidFormatError
+from ...exceptions import InvalidLengthError, InvalidFormatError, InvalidTypeError, EmptyValueError
 
 
 @dataclass(frozen=True, slots=True)
@@ -16,11 +16,17 @@ class PasswordPolicy:
         self._check_common()
 
     def _validate_basic(self):
-        if len(self.value) < self._MIN_LENGTH or len(self.value) > self._MAX_LENGTH:
-            raise InvalidLengthError('Password does not fit the length')
+        if not isinstance(self.value, str):
+            raise InvalidTypeError('Password must be a string')
+
+        if not self.value.strip():
+            raise EmptyValueError('Token value cannot be empty')
 
         if ' ' in self.value:
             raise InvalidFormatError('Password must not contain spaces')
+
+        if len(self.value) < self._MIN_LENGTH or len(self.value) > self._MAX_LENGTH:
+            raise InvalidLengthError('Password does not fit the length')
 
         if not any(c.isupper() for c in self.value):
             raise InvalidFormatError('Password must contain at least one uppercase letter')

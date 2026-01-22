@@ -1,17 +1,19 @@
 from ..dto import LogoutAllUserCommand, LogoutAllUserResult
-from ..ports import IRefreshSessionRepository, ITokenService
+from ..ports import IUnitOfWork, IRefreshSessionRepository, ITokenService
 from ..services import RateLimitService
 from ..security.models import AccessToken
-from  ..security.policies import RateLimitPolicy
+from ..security.policies import RateLimitPolicy
 
 
 class LogoutAllUserUseCase:
     def __init__(self,
+                 uow: IUnitOfWork,
                  refresh_session_repo: IRefreshSessionRepository,
                  token_service: ITokenService,
                  rate_limit_service: RateLimitService,
                  user_id_rate_limit_policy: RateLimitPolicy,
                  ):
+        self._uow = uow
         self._refresh_session_repo = refresh_session_repo
         self._token_service = token_service
         self._rate_limit_service = rate_limit_service
@@ -25,10 +27,11 @@ class LogoutAllUserUseCase:
 
         await self._rate_limit_service.check(f'logout_all:user_id:{payload.user_id}', self._user_id_policy)
 
-        revoked_count = await self._refresh_session_repo.revoke_all_by_user_id(
-            payload.user_id
-        )
+        async with self._uow:
+            revoked_count = await self._refresh_session_repo.revoke_all_by_user_id(
+                payload.user_id
+            )
 
-        return LogoutAllUserResult(
-            revoked_sessions=revoked_count
-        )
+            return LogoutAllUserResult(
+                revoked_sessions=revoked_count
+            )

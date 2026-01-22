@@ -1,4 +1,5 @@
 __all__ = [
+    'IUnitOfWork',
     'IUserRepository',
     'IRefreshSessionRepository',
     'IPasswordHasher',
@@ -8,7 +9,7 @@ __all__ = [
     'IRateLimitStorage',
 ]
 
-from .repositories import IUserRepository, IRefreshSessionRepository
+from .repositories import IUnitOfWork, IUserRepository, IRefreshSessionRepository
 from .security import IPasswordHasher, ITokenService
 from .services import IEmailService, IClock
 from .storages import IRateLimitStorage

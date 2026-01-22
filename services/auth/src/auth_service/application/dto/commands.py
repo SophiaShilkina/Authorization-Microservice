@@ -7,16 +7,14 @@ class RegisterUserCommand:
     email: str
     username: str
     password: str
-
-    context: dict
+    context: ContextDTO
 
 
 @dataclass(frozen=True, slots=True)
 class LoginUserCommand:
     email: str
     password: str
-
-    context: dict
+    context: ContextDTO
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,3 +31,9 @@ class LogoutUserCommand:
 class LogoutAllUserCommand:
     access_token: str
     access_token_expires_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class ContextDTO:
+    ip: str
+    device_info: dict
