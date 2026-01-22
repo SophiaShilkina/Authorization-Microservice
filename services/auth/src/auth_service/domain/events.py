@@ -16,23 +16,6 @@ class UserRegisteredEvent(DomainEvent):
 
 
 @dataclass
-class UserLoggedInEvent(DomainEvent):
-    user_id: UUID
-    ip_address: str
-    user_agent: str
-    success: bool
-
-
-@dataclass
-class UserLoginFailedEvent(DomainEvent):
-    email: str
-    ip_address: str
-    user_agent: str
-    reason: str
-
-
-@dataclass
 class CreateRefreshSessionEvent(DomainEvent):
-    session_id: UUID
     user_id: UUID
     expires_at: datetime

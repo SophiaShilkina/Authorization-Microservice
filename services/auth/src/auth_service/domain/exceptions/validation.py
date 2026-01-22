@@ -9,6 +9,10 @@ class InvalidTypeError(ValidationError):
     pass
 
 
+class TypeMismatch(ValidationError):
+    pass
+
+
 class EmptyValueError(ValidationError):
     pass
 

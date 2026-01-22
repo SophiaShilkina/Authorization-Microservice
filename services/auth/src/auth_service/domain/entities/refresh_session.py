@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from ..value_objects import TokenHashVO, ExpiresAtVO
 from ..exceptions import InvariantViolation
@@ -9,16 +9,11 @@ from ..events import CreateRefreshSessionEvent, DomainEvent
 
 @dataclass(slots=True)
 class RefreshSessionDM:
-    _id: UUID
     _user_id: UUID
     _token_hash: TokenHashVO
     _expires_at: ExpiresAtVO
     _revoked: bool
     _domain_events: list[DomainEvent] = field(default_factory=list, init=False, repr=False)
-
-    @property
-    def id(self) -> UUID:
-        return self._id
 
     @property
     def user_id(self) -> UUID:
@@ -42,10 +37,10 @@ class RefreshSessionDM:
             user_id: UUID,
             token_hash: TokenHashVO,
             expires_at: ExpiresAtVO,
+            occurred_at: datetime
     ) -> 'RefreshSessionDM':
 
         refresh_session = cls(
-            _id=uuid4(),
             _user_id=user_id,
             _token_hash=token_hash,
             _expires_at=expires_at,
@@ -54,14 +49,29 @@ class RefreshSessionDM:
 
         refresh_session.add_domain_event(
             CreateRefreshSessionEvent(
-                session_id=refresh_session.id,
                 user_id=refresh_session.user_id,
                 expires_at=refresh_session.expires_at.value,
-                occurred_at=datetime.now()
+                occurred_at=occurred_at
             )
         )
 
         return refresh_session
+
+    @classmethod
+    def hydrate(
+            cls,
+            *,
+            user_id: UUID,
+            token_hash: TokenHashVO,
+            expires_at: ExpiresAtVO,
+            revoked: bool,
+    ) -> 'RefreshSessionDM':
+        return cls(
+            _user_id=user_id,
+            _token_hash=token_hash,
+            _expires_at=expires_at,
+            _revoked=revoked,
+        )
 
     def is_expired(self, time: datetime) -> bool:
         return self.expires_at.is_expired(time)
@@ -77,7 +87,8 @@ class RefreshSessionDM:
     def rotate(
             self,
             new_token_hash: TokenHashVO,
-            expires_at: ExpiresAtVO
+            expires_at: ExpiresAtVO,
+            occurred_at: datetime
     ) -> 'RefreshSessionDM':
 
         self.revoke()
@@ -86,6 +97,7 @@ class RefreshSessionDM:
             user_id=self.user_id,
             token_hash=new_token_hash,
             expires_at=expires_at,
+            occurred_at=occurred_at,
         )
 
         return new_session

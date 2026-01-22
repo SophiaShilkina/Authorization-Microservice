@@ -1,6 +1,6 @@
 __all__ = [
     'EmailVO',
-    'AccessTokenVO',
+    'TokenVO',
     'UsernameVO',
     'PasswordHashVO',
     'TokenHashVO',
@@ -8,7 +8,7 @@ __all__ = [
 ]
 
 from .email import EmailVO
-from .access_token import AccessTokenVO
+from .token import TokenVO
 from .username import UsernameVO
 from .password_hash import PasswordHashVO
 from .token_hash import TokenHashVO

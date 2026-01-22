@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from ..exceptions import InvalidTypeError, InvariantViolation
+from ..exceptions import InvalidTypeError, InvariantViolation, TypeMismatch
 
 
 @dataclass(frozen=True, slots=True)
@@ -13,13 +13,13 @@ class ExpiresAtVO:
             raise InvalidTypeError('Expires_at must be a datetime')
 
         if self.value.tzinfo is None:
-            raise InvalidTypeError('Expires_at must be timezone-aware')
+            raise TypeMismatch('Expires_at must be timezone-aware')
 
     def _is_same_tz(self, time: datetime) -> None:
         if time.tzinfo is None:
-            raise InvalidTypeError('Time must be timezone-aware')
+            raise TypeMismatch('Time must be timezone-aware')
 
-        if time.tzinfo != self.value.tzinfo:
+        if time.utcoffset() != self.value.utcoffset():
             raise InvariantViolation('Expires_at must be in same timezone')
 
     def is_expired(self, now: datetime) -> bool:

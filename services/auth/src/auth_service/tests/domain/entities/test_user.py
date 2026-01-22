@@ -1,5 +1,5 @@
 from uuid import UUID, uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 
@@ -25,11 +25,17 @@ def valid_password_hash():
 
 
 @pytest.fixture
-def registered_user(valid_email, valid_username, valid_password_hash):
+def now_datetime():
+    return datetime.now(timezone.utc)
+
+
+@pytest.fixture
+def registered_user(valid_email, valid_username, valid_password_hash, now_datetime):
     return UserDM.register(
         email=valid_email,
         username=valid_username,
-        password_hash=valid_password_hash
+        password_hash=valid_password_hash,
+        occurred_at=now_datetime
     )
 
 
@@ -56,11 +62,12 @@ def test_cannot_change_fields_directly(registered_user):
         registered_user.verified = True
 
 
-def test_user_register_success(valid_email, valid_username, valid_password_hash):
+def test_user_register_success(valid_email, valid_username, valid_password_hash, now_datetime):
     user = UserDM.register(
         email=valid_email,
         username=valid_username,
-        password_hash=valid_password_hash
+        password_hash=valid_password_hash,
+        occurred_at=now_datetime
     )
 
     assert isinstance(user.id, UUID)
@@ -183,11 +190,12 @@ def test_change_password_hash_success(registered_user):
     assert registered_user.password_hash == new_hash
 
 
-def test_user_register_generate_domain_event(valid_email, valid_username, valid_password_hash):
+def test_user_register_generate_domain_event(valid_email, valid_username, valid_password_hash, now_datetime):
     user = UserDM.register(
         email=valid_email,
         username=valid_username,
-        password_hash=valid_password_hash
+        password_hash=valid_password_hash,
+        occurred_at=now_datetime
     )
 
     events = user.pull_domain_events()

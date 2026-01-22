@@ -52,6 +52,7 @@ class UserDM:
             email: EmailVO,
             username: UsernameVO,
             password_hash: PasswordHashVO,
+            occurred_at: datetime
     ) -> 'UserDM':
 
         user = cls(
@@ -69,11 +70,33 @@ class UserDM:
                 user_id=user.id,
                 email=user.email.value,
                 username=user.username.value,
-                occurred_at=datetime.now()
+                occurred_at=occurred_at
             )
         )
 
         return user
+
+    @classmethod
+    def hydrate(
+            cls,
+            *,
+            id_: UUID,
+            email: EmailVO,
+            username: UsernameVO,
+            password_hash: PasswordHashVO,
+            is_active: bool,
+            is_verified: bool,
+            is_blocked: bool,
+    ) -> 'UserDM':
+        return cls(
+            _id=id_,
+            _email=email,
+            _username=username,
+            _password_hash=password_hash,
+            _active=is_active,
+            _verified=is_verified,
+            _blocked=is_blocked,
+        )
 
     def ensure_can_login(self) -> None:
         if not self.is_active or self.is_blocked:

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 
 from auth_service.domain.value_objects import ExpiresAtVO
-from auth_service.domain.exceptions import InvalidTypeError, InvariantViolation
+from auth_service.domain.exceptions import InvalidTypeError, InvariantViolation, TypeMismatch
 
 
 @pytest.fixture
@@ -36,7 +36,7 @@ def test_expires_at_invalid_type(invalid_value):
 def test_reject_datetime_without_tz():
     naive_dt = datetime.now()
 
-    with pytest.raises(InvalidTypeError):
+    with pytest.raises(TypeMismatch):
         ExpiresAtVO(naive_dt)
 
 
@@ -65,7 +65,7 @@ def test_is_expired_rejects_naive_datetime(now):
     expires_at = ExpiresAtVO(now)
     naive_now = datetime.now()
 
-    with pytest.raises(InvalidTypeError):
+    with pytest.raises(TypeMismatch):
         expires_at.is_expired(naive_now)
 
 

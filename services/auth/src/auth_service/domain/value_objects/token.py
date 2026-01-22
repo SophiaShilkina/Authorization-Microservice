@@ -1,13 +1,11 @@
 from dataclasses import dataclass
 
-from .expires_at import ExpiresAtVO
 from ..exceptions import InvalidTypeError, EmptyValueError
 
 
 @dataclass(frozen=True, slots=True)
-class AccessTokenVO:
+class TokenVO:
     value: str
-    expires_at: ExpiresAtVO
 
     def __post_init__(self):
         if not isinstance(self.value, str):

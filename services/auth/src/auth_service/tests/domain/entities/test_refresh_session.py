@@ -40,11 +40,12 @@ def expires_at_future_datetime():
 
 
 @pytest.fixture
-def valid_refresh_session(valid_user_id, valid_token_hash, expires_at_future):
+def valid_refresh_session(valid_user_id, valid_token_hash, expires_at_future, now_datetime):
     return RefreshSessionDM.create(
         user_id=valid_user_id,
         token_hash=valid_token_hash,
-        expires_at=expires_at_future
+        expires_at=expires_at_future,
+        occurred_at=now_datetime
     )
 
 
@@ -65,14 +66,14 @@ def test_cannot_change_fields_directly(valid_refresh_session):
         valid_refresh_session.is_revoked = True
 
 
-def test_create_refresh_session(valid_user_id, valid_token_hash, expires_at_future):
+def test_create_refresh_session(valid_user_id, valid_token_hash, expires_at_future, now_datetime):
     session = RefreshSessionDM.create(
         user_id=valid_user_id,
         token_hash=valid_token_hash,
-        expires_at=expires_at_future
+        expires_at=expires_at_future,
+        occurred_at=now_datetime
     )
 
-    assert session.id is not None
     assert session.user_id == valid_user_id
     assert session.token_hash == valid_token_hash
     assert session.expires_at == expires_at_future
@@ -87,7 +88,8 @@ def test_is_expired_past_time(valid_user_id, valid_token_hash, expires_at_past, 
     session = RefreshSessionDM.create(
         user_id=valid_user_id,
         token_hash=valid_token_hash,
-        expires_at=expires_at_past
+        expires_at=expires_at_past,
+        occurred_at=now_datetime,
     )
 
     assert session.is_expired(now_datetime) is True
@@ -101,7 +103,8 @@ def test_is_valid_expired_session(valid_user_id, valid_token_hash, expires_at_pa
     session = RefreshSessionDM.create(
         user_id=valid_user_id,
         token_hash=valid_token_hash,
-        expires_at=expires_at_past
+        expires_at=expires_at_past,
+        occurred_at=now_datetime,
     )
 
     assert session.is_valid(now_datetime) is False
@@ -124,16 +127,16 @@ def test_is_valid_revoked_session(valid_refresh_session, expires_at_future_datet
     assert valid_refresh_session.is_valid(expires_at_future_datetime) is False
 
 
-def test_rotate_session(valid_refresh_session):
+def test_rotate_session(valid_refresh_session, now_datetime):
     new_token_hash = TokenHashVO('new_hash_2kn5n2ksdo4e234dsdom3k2kmjro44223m3n3dl3l43iwes9v')
     new_expires_at = ExpiresAtVO(datetime.now(timezone.utc) + timedelta(hours=2))
 
     new_session = valid_refresh_session.rotate(
         new_token_hash=new_token_hash,
-        expires_at=new_expires_at
+        expires_at=new_expires_at,
+        occurred_at=now_datetime,
     )
 
-    assert new_session.id != valid_refresh_session.id
     assert valid_refresh_session.is_revoked is True
     assert new_session.user_id == valid_refresh_session.user_id
     assert new_session.token_hash == new_token_hash
@@ -147,7 +150,6 @@ def test_create_generates_domain_event(valid_refresh_session):
 
     event = events[0]
     assert isinstance(event, CreateRefreshSessionEvent)
-    assert event.session_id == valid_refresh_session.id
     assert event.user_id == valid_refresh_session.user_id
 
 

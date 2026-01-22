@@ -1,6 +1,7 @@
 __all__ = [
     'DomainError',
     'InvalidTypeError',
+    'TypeMismatch',
     'EmptyValueError',
     'InvalidFormatError',
     'InvalidLengthError',
@@ -9,5 +10,5 @@ __all__ = [
 ]
 
 from .base import DomainError
-from .validation import InvalidTypeError, EmptyValueError, InvalidFormatError, InvalidLengthError
+from .validation import InvalidTypeError, TypeMismatch, EmptyValueError, InvalidFormatError, InvalidLengthError
 from .violations import InvariantViolation, BusinessRuleViolation
