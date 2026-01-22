@@ -1,5 +1,5 @@
 from ..dto import LogoutAllUserCommand, LogoutAllUserResult
-from ..ports import IUnitOfWork, IRefreshSessionRepository, ITokenService
+from ..ports import IUnitOfWork, IRefreshSessionRepository, IAccessTokenService
 from ..services import RateLimitService
 from ..security.models import AccessToken
 from ..security.policies import RateLimitPolicy
@@ -9,18 +9,18 @@ class LogoutAllUserUseCase:
     def __init__(self,
                  uow: IUnitOfWork,
                  refresh_session_repo: IRefreshSessionRepository,
-                 token_service: ITokenService,
+                 access_token_service: IAccessTokenService,
                  rate_limit_service: RateLimitService,
                  user_id_rate_limit_policy: RateLimitPolicy,
                  ):
         self._uow = uow
         self._refresh_session_repo = refresh_session_repo
-        self._token_service = token_service
+        self._access_token_service = access_token_service
         self._rate_limit_service = rate_limit_service
         self._user_id_policy = user_id_rate_limit_policy
 
     async def execute(self, cmd: LogoutAllUserCommand) -> LogoutAllUserResult:
-        payload = self._token_service.verify_access_token(AccessToken(
+        payload = self._access_token_service.verify(AccessToken(
             token=cmd.access_token,
             expires_at=cmd.access_token_expires_at)
         )

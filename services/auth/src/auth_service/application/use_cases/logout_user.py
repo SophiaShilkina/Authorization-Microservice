@@ -1,6 +1,6 @@
 from auth_service.domain.value_objects import TokenVO
 from ..dto import LogoutUserCommand
-from ..ports import IUnitOfWork, IRefreshSessionRepository, ITokenService, IClock
+from ..ports import IUnitOfWork, IRefreshSessionRepository, IRefreshTokenService, IClock
 from ..exceptions import AuthenticationFailed, TokenExpired
 
 
@@ -8,16 +8,16 @@ class LogoutUserUseCase:
     def __init__(self,
                  uow: IUnitOfWork,
                  refresh_session_repo: IRefreshSessionRepository,
-                 token_service: ITokenService,
+                 refresh_token_service: IRefreshTokenService,
                  clock: IClock,
                  ):
         self._uow = uow
         self._refresh_session_repo = refresh_session_repo
-        self._token_service = token_service
+        self._refresh_token_service = refresh_token_service
         self._clock = clock
 
     async def execute(self, cmd: LogoutUserCommand) -> None:
-        refresh_hash = self._token_service.hash_token(TokenVO(cmd.refresh_token))
+        refresh_hash = self._refresh_token_service.hash(TokenVO(cmd.refresh_token))
 
         async with self._uow:
             session = await self._refresh_session_repo.get_by_hash(refresh_hash)

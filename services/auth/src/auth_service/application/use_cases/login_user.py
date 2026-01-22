@@ -2,7 +2,8 @@ from auth_service.domain.value_objects import EmailVO, ExpiresAtVO
 from auth_service.domain.entities import RefreshSessionDM
 from auth_service.domain.exceptions import InvariantViolation
 from ..dto import LoginUserCommand, LoginUserResult
-from ..ports import IUnitOfWork, IUserRepository, IRefreshSessionRepository, IPasswordHasher, ITokenService, IClock
+from ..ports import (IUnitOfWork, IUserRepository, IRefreshSessionRepository, IPasswordHasher,
+                     IRefreshTokenService, IAccessTokenService, IClock)
 from ..services import RateLimitService
 from ..exceptions import AuthenticationFailed
 from ..security.policies import TokenPolicy, PasswordPolicy, RateLimitPolicy
@@ -15,7 +16,8 @@ class LoginUserUseCase:
                  user_repo: IUserRepository,
                  refresh_session_repo: IRefreshSessionRepository,
                  password_hasher: IPasswordHasher,
-                 token_service: ITokenService,
+                 refresh_token_service: IRefreshTokenService,
+                 access_token_service: IAccessTokenService,
                  rate_limit_service: RateLimitService,
                  token_policy: TokenPolicy,
                  email_rate_limit_policy: RateLimitPolicy,
@@ -26,7 +28,8 @@ class LoginUserUseCase:
         self._user_repo = user_repo
         self._refresh_session_repo = refresh_session_repo
         self._password_hasher = password_hasher
-        self._token_service = token_service
+        self._refresh_token_service = refresh_token_service
+        self._access_token_service = access_token_service
         self._rate_limit_service = rate_limit_service
         self._token_policy = token_policy
         self._email_policy = email_rate_limit_policy
@@ -54,7 +57,7 @@ class LoginUserUseCase:
             except InvariantViolation as error:
                 raise AuthenticationFailed(str(error))
 
-            raw_refresh, refresh_hash = self._token_service.issue_refresh_token()
+            raw_refresh, refresh_hash = self._refresh_token_service.generate()
 
             now = self._clock.now()
 
@@ -71,7 +74,7 @@ class LoginUserUseCase:
                 issued_at=now,
                 expires_at=ExpiresAtVO(now + self._token_policy.access_ttl),
             )
-            access_token = self._token_service.issue_access_token(payload)
+            access_token = self._access_token_service.issue(payload)
 
             return LoginUserResult(
                 access_token=access_token.token,
