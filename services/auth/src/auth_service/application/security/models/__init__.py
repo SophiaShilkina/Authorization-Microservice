@@ -3,5 +3,4 @@ __all__ = [
     'AccessTokenPayload',
 ]
 
-from .access_token import AccessToken
-from .token_payload import AccessTokenPayload
+from .access_token import AccessToken, AccessTokenPayload

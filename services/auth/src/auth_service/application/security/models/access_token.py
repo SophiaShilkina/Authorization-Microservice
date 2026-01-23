@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from uuid import UUID
 
 
 @dataclass(frozen=True, slots=True)
@@ -14,3 +15,8 @@ class AccessToken:
         if len(self.token) <= 8:
             return '***'
         return f'{self.token[:4]}...{self.token[-4:]}'
+
+
+@dataclass(frozen=True, slots=True)
+class AccessTokenPayload:
+    user_id: UUID

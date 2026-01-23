@@ -56,10 +56,8 @@ class RefreshTokenUseCase:
 
             payload = AccessTokenPayload(
                 user_id=session.user_id,
-                issued_at=now,
-                expires_at=ExpiresAtVO(now + self._token_policy.access_ttl),
             )
-            access_token = self._access_token_service.issue(payload)
+            access_token = self._access_token_service.issue(payload, now)
 
             return RefreshTokenResult(
                 access_token=access_token.token,
