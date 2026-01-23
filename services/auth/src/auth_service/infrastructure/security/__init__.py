@@ -1,5 +1,8 @@
-__all__ = ['PasswordHasher', 'JWTService', 'RandomTokenService']
+__all__ = [
+    'ArgonPasswordHasher',
+    'JoseAccessTokenService',
+    'RandomTokenService',
+]
 
-from .password import PasswordHasher
-from .jwt import JWTService
-from .random_token import RandomTokenService
+from .password import ArgonPasswordHasher
+from .tokens import RandomTokenService, JoseAccessTokenService
