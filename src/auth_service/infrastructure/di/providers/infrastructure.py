@@ -10,6 +10,7 @@ from ...persistence.postgres.repositories import SqlAlchemyUserRepository, SqlAl
 from ...persistence.redis.storages import RedisRateLimitStorage
 from ...security.tokens import JoseAccessTokenService, RandomTokenService
 from ...security.password import ArgonPasswordHasher
+from ...email_service.fake_email_service import FakeEmailService
 from ...clock import SystemClock
 
 from ...config import Config
@@ -21,23 +22,23 @@ from auth_service.application.ports import (
     IRateLimitStorage,
     IRefreshTokenService,
     IAccessTokenService,
+    IEmailService,
     IPasswordHasher,
     IClock,
 )
 
 
 class InfrastructureProvider(Provider):
-    def __init__(self, config: Config):
-        self._config = config
 
     @provide(scope=Scope.APP)
-    def postgres_client(self) -> PostgresClient:
+    def postgres_client(self, config: Config) -> PostgresClient:
+        pg = config.postgres
         return PostgresClient(
-            url='postgresql+asyncpg://user:pass@localhost/db',
-            echo=False,
-            echo_pool=False,
-            pool_size=5,
-            max_overflow=10,
+            url=pg.dsn,
+            echo=pg.echo,
+            echo_pool=pg.echo_pool,
+            pool_size=pg.pool_size,
+            max_overflow=pg.max_overflow,
         )
 
     @provide(scope=Scope.REQUEST)
@@ -46,11 +47,12 @@ class InfrastructureProvider(Provider):
             yield session
 
     @provide(scope=Scope.APP)
-    def redis_client(self) -> RedisClient:
+    def redis_client(self, config: Config) -> RedisClient:
+        r = config.redis
         return RedisClient(
-            url='redis://localhost:6379',
-            encoding='utf-8',
-            decode_responses=True,
+            url=r.dsn,
+            encoding=r.encoding,
+            decode_responses=r.decode_responses,
         )
 
     @provide(scope=Scope.APP)
@@ -78,6 +80,10 @@ class InfrastructureProvider(Provider):
     @provide(scope=Scope.APP)
     def access_token_service(self) -> IAccessTokenService:
         return JoseAccessTokenService()
+
+    @provide(scope=Scope.APP)
+    def email_service(self) -> IEmailService:
+        return FakeEmailService()
 
     @provide(scope=Scope.APP)
     def password_hasher(self) -> IPasswordHasher:

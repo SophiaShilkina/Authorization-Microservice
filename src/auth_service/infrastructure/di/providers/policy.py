@@ -2,56 +2,67 @@ from datetime import timedelta
 
 from dishka import Provider, provide, Scope
 
-from auth_service.application.security.policies import TokenPolicy, RateLimitPolicy
+from auth_service.application.security.policies import (
+    TokenPolicy, LoginEmailRateLimit, LoginIPRateLimit, RegisterEmailRateLimit,
+    RegisterIPRateLimit, RefreshTokenRateLimit, LogoutAllRateLimit
+)
+
+from ...config import Config
 
 
 class PolicyProvider(Provider):
 
     @provide(scope=Scope.APP)
-    def token_policy(self) -> TokenPolicy:
+    def token_policy(self, config: Config) -> TokenPolicy:
         return TokenPolicy(
-            access_ttl=timedelta(minutes=15),
-            refresh_ttl=timedelta(days=7),
+            access_ttl=timedelta(minutes=config.access_token.ttl_minutes),
+            refresh_ttl=timedelta(days=config.refresh_token.ttl_days),
         )
 
     @provide(scope=Scope.APP)
-    def login_email_rate_limit(self) -> RateLimitPolicy:
-        return RateLimitPolicy(
-            attempts=5,
-            window=timedelta(minutes=5),
+    def login_email_rate_limit(self, config: Config) -> LoginEmailRateLimit:
+        rule = config.rate_limit.login_email
+        return LoginEmailRateLimit(
+            attempts=rule.attempts,
+            window=timedelta(seconds=rule.window_seconds),
         )
 
     @provide(scope=Scope.APP)
-    def login_ip_rate_limit(self) -> RateLimitPolicy:
-        return RateLimitPolicy(
-            attempts=5,
-            window=timedelta(minutes=5),
+    def login_ip_rate_limit(self, config: Config) -> LoginIPRateLimit:
+        rule = config.rate_limit.login_ip
+        return LoginIPRateLimit(
+            attempts=rule.attempts,
+            window=timedelta(seconds=rule.window_seconds),
         )
 
     @provide(scope=Scope.APP)
-    def register_email_rate_limit(self) -> RateLimitPolicy:
-        return RateLimitPolicy(
-            attempts=5,
-            window=timedelta(minutes=5),
+    def register_email_rate_limit(self, config: Config) -> RegisterEmailRateLimit:
+        rule = config.rate_limit.register_email
+        return RegisterEmailRateLimit(
+            attempts=rule.attempts,
+            window=timedelta(seconds=rule.window_seconds),
         )
 
     @provide(scope=Scope.APP)
-    def register_ip_rate_limit(self) -> RateLimitPolicy:
-        return RateLimitPolicy(
-            attempts=5,
-            window=timedelta(minutes=5),
+    def register_ip_rate_limit(self, config: Config) -> RegisterIPRateLimit:
+        rule = config.rate_limit.register_ip
+        return RegisterIPRateLimit(
+            attempts=rule.attempts,
+            window=timedelta(seconds=rule.window_seconds),
         )
 
     @provide(scope=Scope.APP)
-    def refresh_token_rate_limit(self) -> RateLimitPolicy:
-        return RateLimitPolicy(
-            attempts=5,
-            window=timedelta(minutes=5),
+    def refresh_token_rate_limit(self, config: Config) -> RefreshTokenRateLimit:
+        rule = config.rate_limit.refresh_token
+        return RefreshTokenRateLimit(
+            attempts=rule.attempts,
+            window=timedelta(seconds=rule.window_seconds),
         )
 
     @provide(scope=Scope.APP)
-    def logout_all_user_id_rate_limit(self) -> RateLimitPolicy:
-        return RateLimitPolicy(
-            attempts=5,
-            window=timedelta(minutes=5),
+    def logout_all_user_id_rate_limit(self, config: Config) -> LogoutAllRateLimit:
+        rule = config.rate_limit.logout_all
+        return LogoutAllRateLimit(
+            attempts=rule.attempts,
+            window=timedelta(seconds=rule.window_seconds),
         )

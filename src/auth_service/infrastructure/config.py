@@ -90,6 +90,20 @@ class CookieConfig(ConfigBase):
     max_age: int = 30 * 24 * 60 * 60
 
 
+class RateLimitRule(ConfigBase):
+    attempts: int
+    window_seconds: int
+
+
+class RateLimitConfig(ConfigBase):
+    login_email: RateLimitRule = RateLimitRule(attempts=5, window_seconds=15 * 60)
+    login_ip: RateLimitRule = RateLimitRule(attempts=20, window_seconds=5 * 60)
+    register_email: RateLimitRule = RateLimitRule(attempts=3, window_seconds=60 * 60)
+    register_ip: RateLimitRule = RateLimitRule(attempts=10, window_seconds=60 * 60)
+    refresh_token: RateLimitRule = RateLimitRule(attempts=30, window_seconds=5 * 60)
+    logout_all: RateLimitRule = RateLimitRule(attempts=5, window_seconds=10 * 60)
+
+
 # ========== Config ==============
 
 class Config(BaseSettings):
@@ -100,6 +114,7 @@ class Config(BaseSettings):
     access_token: AccessTokenConfig = Field(default_factory=AccessTokenConfig)
     refresh_token: RefreshTokenConfig = Field(default_factory=RefreshTokenConfig)
     cookie: CookieConfig = Field(default_factory=CookieConfig)
+    rate_limit: RateLimitConfig = Field(default_factory=RateLimitConfig)
 
     @classmethod
     def load(cls) -> "Config":
