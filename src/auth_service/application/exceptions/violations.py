@@ -1,7 +1,11 @@
 from .base import ApplicationError
 
 
-class BusinessRuleViolation(ApplicationError):
+class Violation(ApplicationError):
+    pass
+
+
+class BusinessRuleViolation(Violation):
     pass
 
 
