@@ -6,7 +6,7 @@ from ..ports import (IUnitOfWork, IUserRepository, IRefreshSessionRepository, IP
                      IRefreshTokenService, IAccessTokenService, IClock)
 from ..services import RateLimitService
 from ..exceptions import AuthenticationFailed
-from ..security.policies import TokenPolicy, PasswordPolicy, RateLimitPolicy
+from ..security.policies import TokenPolicy, PasswordPolicy, LoginIPRateLimit, LoginEmailRateLimit
 from ..security.models import AccessTokenPayload
 
 
@@ -20,8 +20,8 @@ class LoginUserUseCase:
                  access_token_service: IAccessTokenService,
                  rate_limit_service: RateLimitService,
                  token_policy: TokenPolicy,
-                 email_rate_limit_policy: RateLimitPolicy,
-                 ip_rate_limit_policy: RateLimitPolicy,
+                 email_rate_limit_policy: LoginEmailRateLimit,
+                 ip_rate_limit_policy: LoginIPRateLimit,
                  clock: IClock,
                  ):
         self._uow = uow

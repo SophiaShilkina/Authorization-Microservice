@@ -3,7 +3,7 @@ from ..dto import RefreshTokenCommand, RefreshTokenResult
 from ..ports import IUnitOfWork, IRefreshSessionRepository, IRefreshTokenService, IAccessTokenService, IClock
 from ..services import RateLimitService
 from ..exceptions import AuthenticationFailed
-from ..security.policies import TokenPolicy, RateLimitPolicy
+from ..security.policies import TokenPolicy, RefreshTokenRateLimit
 from ..security.models import AccessTokenPayload
 
 
@@ -15,8 +15,7 @@ class RefreshTokenUseCase:
                  access_token_service: IAccessTokenService,
                  rate_limit_service: RateLimitService,
                  token_policy: TokenPolicy,
-                 token_rate_limit_policy: RateLimitPolicy,
-                 user_id_rate_limit_policy: RateLimitPolicy,
+                 token_rate_limit_policy: RefreshTokenRateLimit,
                  clock: IClock,
                  ):
         self._uow = uow
@@ -26,7 +25,6 @@ class RefreshTokenUseCase:
         self._rate_limit_service = rate_limit_service
         self._token_policy = token_policy
         self._token_rl_policy = token_rate_limit_policy
-        self._user_id_policy = user_id_rate_limit_policy
         self._clock = clock
 
     async def execute(self, cmd: RefreshTokenCommand) -> RefreshTokenResult:

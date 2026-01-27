@@ -3,7 +3,7 @@ from auth_service.domain.entities import UserDM
 from ..dto import RegisterUserCommand, RegisterUserResult
 from ..ports import IUnitOfWork, IUserRepository, IPasswordHasher, IEmailService, IClock
 from ..services import RateLimitService
-from ..security.policies import PasswordPolicy, RateLimitPolicy
+from ..security.policies import PasswordPolicy, RegisterEmailRateLimit, RegisterIPRateLimit
 from ..exceptions import AlreadyExists
 
 
@@ -14,8 +14,8 @@ class RegisterUserUseCase:
                  password_hasher: IPasswordHasher,
                  email_service: IEmailService,
                  rate_limit_service: RateLimitService,
-                 email_rate_limit_policy: RateLimitPolicy,
-                 ip_rate_limit_policy: RateLimitPolicy,
+                 email_rate_limit_policy: RegisterEmailRateLimit,
+                 ip_rate_limit_policy: RegisterIPRateLimit,
                  clock: IClock
                  ):
         self._uow = uow

@@ -2,7 +2,7 @@ from ..dto import LogoutAllUserCommand, LogoutAllUserResult
 from ..ports import IUnitOfWork, IRefreshSessionRepository, IAccessTokenService, IClock
 from ..services import RateLimitService
 from ..security.models import AccessToken
-from ..security.policies import RateLimitPolicy
+from ..security.policies import LogoutAllRateLimit
 
 
 class LogoutAllUserUseCase:
@@ -11,7 +11,7 @@ class LogoutAllUserUseCase:
                  refresh_session_repo: IRefreshSessionRepository,
                  access_token_service: IAccessTokenService,
                  rate_limit_service: RateLimitService,
-                 user_id_rate_limit_policy: RateLimitPolicy,
+                 user_id_rate_limit_policy: LogoutAllRateLimit,
                  clock: IClock,
                  ):
         self._uow = uow
