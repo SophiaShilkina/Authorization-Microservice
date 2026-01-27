@@ -1,66 +1,26 @@
-import logging
-
-from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware import Middleware
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-import fastapi_swagger_dark as fsd
+from dishka.integrations.fastapi import setup_dishka
 
-from auth_service.domain.exceptions import APIError
-from auth_service.presentation import current_router
+from .middleware import middleware
+from .api import current_router
+from .exception_handlers import register_exception_handlers
+from auth_service.infrastructure.di import create_container
 
-logger = logging.getLogger(__name__)
 
-
-middleware = [
-    Middleware(
-        CORSMiddleware,  # type: ignore
-        allow_origins=['*'],
-        allow_credentials=True,
-        allow_methods=['*'],
-        allow_headers=['*'],
-        expose_headers=['Content-Type']
+def create_app() -> FastAPI:
+    app = FastAPI(
+        title='Authorization microservice',
+        description='API для взаимодействия с микросервисом авторизации, аутентификации и регистрации.',
+        version='1.0.0',
+        default_response_class=ORJSONResponse,
+        middleware=middleware,
     )
-]
+    container = create_container()
+    setup_dishka(container, app)
 
-app = FastAPI(
-    docs_url=None,
-    title="CaringTails Backend API",
-    description="API для взаимодействия с бэкендом CaringTails.",
-    version="1.0.0",
-    default_response_class=ORJSONResponse,
-    middleware=middleware,
-    swagger_ui_parameters={
-        "persistAuthorization": True,
-        "displayRequestDuration": True,
-        "theme": "dark",
-    }
-)
+    app.include_router(current_router)
 
+    register_exception_handlers(app)
 
-@app.exception_handler(APIError)
-async def api_error_handler(request: Request, exc: APIError):
-    return ORJSONResponse(
-        status_code=exc.status_code,
-        content={
-            "status": exc.error,
-            "message": exc.message,
-        },
-    )
-
-
-@app.exception_handler(Exception)
-async def unhandled_exception_handler(request: Request, exc: Exception):
-    logger.exception("Unhandled exception")
-
-    return ORJSONResponse(
-        status_code=500,
-        content={
-            "status": "Internal Server Error",
-            "message": "Unexpected server error",
-        },
-    )
-
-# TODO: убрать темную тему в проде
-fsd.install(current_router, path="/docs")
-app.include_router(current_router)
+    return app
