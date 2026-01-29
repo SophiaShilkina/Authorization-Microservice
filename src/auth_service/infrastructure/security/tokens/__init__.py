@@ -1,4 +1,4 @@
-__all__ = ['JoseAccessTokenService', 'RandomTokenService']
+__all__ = ['JoseAccessTokenService', 'RandomRefreshTokenService']
 
 from .access.jose_token_service import JoseAccessTokenService
-from .refresh.random_token_service import RandomTokenService
+from .refresh.random_token_service import RandomRefreshTokenService

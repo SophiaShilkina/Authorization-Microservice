@@ -8,6 +8,7 @@ __all__ = [
     'LogoutUserCommand',
     'LogoutAllUserCommand',
     'LogoutAllUserResult',
+    'ContextDTO',
 ]
 
 from .commands import (
@@ -16,6 +17,7 @@ from .commands import (
     RefreshTokenCommand,
     LogoutUserCommand,
     LogoutAllUserCommand,
+    ContextDTO,
 )
 from .results import (
     RegisterUserResult,

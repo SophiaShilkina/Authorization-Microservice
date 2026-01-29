@@ -36,4 +36,4 @@ class LogoutAllUserCommand:
 @dataclass(frozen=True, slots=True)
 class ContextDTO:
     ip: str
-    device_info: dict
+    user_agent: str

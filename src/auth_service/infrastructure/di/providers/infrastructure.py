@@ -6,9 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...persistence.postgres.client import PostgresClient
 from ...persistence.redis.client import RedisClient
 
+from ...persistence.postgres.uow import SqlAlchemyUnitOfWork
 from ...persistence.postgres.repositories import SqlAlchemyUserRepository, SqlAlchemyRefreshSessionRepository
 from ...persistence.redis.storages import RedisRateLimitStorage
-from ...security.tokens import JoseAccessTokenService, RandomTokenService
+from ...security.tokens import JoseAccessTokenService, RandomRefreshTokenService
 from ...security.password import ArgonPasswordHasher
 from ...email_service.fake_email_service import FakeEmailService
 from ...clock import SystemClock
@@ -24,7 +25,7 @@ from auth_service.application.ports import (
     IAccessTokenService,
     IEmailService,
     IPasswordHasher,
-    IClock,
+    IClock, IUnitOfWork,
 )
 
 
@@ -62,6 +63,10 @@ class InfrastructureProvider(Provider):
     # ===============================
 
     @provide(scope=Scope.REQUEST)
+    def uow(self, session: AsyncSession) -> IUnitOfWork:
+        return SqlAlchemyUnitOfWork(session)
+
+    @provide(scope=Scope.REQUEST)
     def user_repository(self, session: AsyncSession) -> IUserRepository:
         return SqlAlchemyUserRepository(session)
 
@@ -75,7 +80,7 @@ class InfrastructureProvider(Provider):
 
     @provide(scope=Scope.APP)
     def refresh_token_service(self) -> IRefreshTokenService:
-        return RandomTokenService()
+        return RandomRefreshTokenService()
 
     @provide(scope=Scope.APP)
     def access_token_service(self) -> IAccessTokenService:

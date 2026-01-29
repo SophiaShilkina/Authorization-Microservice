@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 from pydantic.types import SecretStr
 
-BASE_DIR = Path(__file__).resolve().parents[4]
+BASE_DIR = Path(__file__).resolve().parent.parent
 SETTINGS_PATH = BASE_DIR / 'settings'
 
 
@@ -56,8 +56,8 @@ class RedisConfig(ConfigBase):
     port: int
 
     # Client settings
-    encoding = 'utf-8'
-    decode_responses = True
+    encoding: str = 'utf-8'
+    decode_responses: bool = True
 
     @property
     def dsn(self) -> str:
@@ -86,7 +86,7 @@ class CookieConfig(ConfigBase):
     name: str = 'refresh_token'
     httponly: bool = True
     secure: bool = False
-    samesite: str = "lax"
+    samesite: str = 'lax'
     max_age: int = 30 * 24 * 60 * 60
 
 
