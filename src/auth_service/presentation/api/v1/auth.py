@@ -3,8 +3,21 @@ from dishka.integrations.fastapi import inject
 from dishka import FromDishka
 
 from ... import schemas
-from auth_service.application.use_cases import LoginUserUseCase, RegisterUserUseCase
-from auth_service.application.dto import LoginUserCommand, ContextDTO, RegisterUserCommand
+from auth_service.application.use_cases import (
+    LoginUserUseCase,
+    RegisterUserUseCase,
+    RefreshTokenUseCase,
+    LogoutUserUseCase,
+    LogoutAllUserUseCase
+)
+from auth_service.application.dto import (
+    ContextDTO,
+    LoginUserCommand,
+    RegisterUserCommand,
+    RefreshTokenCommand,
+    LogoutUserCommand,
+    LogoutAllUserCommand
+)
 from auth_service.infrastructure import config
 
 router = APIRouter()
@@ -88,13 +101,75 @@ async def login_user(
     }
 
 
-# @router.post('/refresh')
-# async def refresh_token(refresh_token: str):
-#     """
-#     Получение нового access токена по refresh токену
-#     """
-#     # 1. Верифицировать refresh токен
-#     # 2. Извлечь user_id
-#     # 3. Сгенерировать новый access токен
-#     # 4. Вернуть новый access токен
-#     pass
+@router.post('/refresh',
+             response_model=schemas.ResponseEnvelope[schemas.RefreshResponse],
+             responses={
+                 500: {'model': schemas.ErrorResponse},
+             })
+@inject
+async def refresh_token(
+        body: schemas.RefreshRequest,
+        uc: FromDishka[RefreshTokenUseCase],
+):
+    cmd = RefreshTokenCommand(
+        refresh_token=str(body.refresh_token),
+    )
+
+    result = await uc.execute(cmd)
+
+    return {
+        'status': 'OK',
+        'data': {
+            'access_token': result.access_token,
+            'refresh_token': result.refresh_token,
+            'expires_at': result.expires_at,
+        }
+    }
+
+
+
+@router.post('/logout',
+             response_model=schemas.ResponseEnvelope[schemas.LogoutResponse],
+             responses={
+                 500: {'model': schemas.ErrorResponse},
+             })
+@inject
+async def logout_user(
+        body: schemas.LogoutRequest,
+        uc: FromDishka[LogoutUserUseCase],
+):
+    cmd = LogoutUserCommand(
+        refresh_token=str(body.refresh_token),
+    )
+
+    await uc.execute(cmd)
+
+    return {
+        'status': 'OK',
+        'data': None
+    }
+
+
+@router.post('/logout-all',
+             response_model=schemas.ResponseEnvelope[schemas.LogoutAllResponse],
+             responses={
+                 500: {'model': schemas.ErrorResponse},
+             })
+@inject
+async def logout_all_user(
+        body: schemas.LogoutAllRequest,
+        uc: FromDishka[LogoutAllUserUseCase],
+):
+    cmd = LogoutAllUserCommand(
+        access_token=body.access_token,
+        access_token_expires_at=body.access_token_expires_at,
+    )
+
+    result = await uc.execute(cmd)
+
+    return {
+        'status': 'OK',
+        'data': {
+            'revoked_sessions': result.revoked_sessions,
+        }
+    }

@@ -9,10 +9,13 @@ from jose import jwt, JWTError
 
 
 class JoseAccessTokenService(IAccessTokenService):
-    def __init__(self):
-        self._secret_key = config.jwt.secret_key
-        self._algorithm = config.jwt.algorithm
-        self._ttl = config.jwt.ttl_minutes
+    def __init__(self,
+                 secret_key: str,
+                 algorithm: str,
+                 ttl_minutes: int):
+        self._secret_key = secret_key
+        self._algorithm = algorithm
+        self._ttl = ttl_minutes
 
     def issue(self, payload: AccessTokenPayload, now: datetime) -> AccessToken:
         exp = now + timedelta(minutes=self._ttl)

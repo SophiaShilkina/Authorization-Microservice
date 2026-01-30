@@ -1,6 +1,6 @@
-from typing import Optional
+from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field, SecretStr
+from pydantic import BaseModel, EmailStr, SecretStr
 
 
 class RegisterRequest(BaseModel):
@@ -16,15 +16,8 @@ class RegisterResponse(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr = Field(
-        ...,
-        description='Почта пользователя',
-        examples=['user@example.com']
-    )
-    password: SecretStr = Field(
-        ...,
-        description="Пароль пользователя"
-    )
+    email: EmailStr
+    password: SecretStr
 
 
 class LoginResponse(BaseModel):
@@ -33,17 +26,28 @@ class LoginResponse(BaseModel):
     expires_at: str
 
 
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
+class RefreshRequest(BaseModel):
+    refresh_token: SecretStr
 
 
-class Token(BaseModel):
+class RefreshResponse(BaseModel):
     access_token: str
     refresh_token: str
-    token_type: str = "bearer"
+    expires_at: str
 
 
-class TokenData(BaseModel):
-    user_id: Optional[int] = None
-    email: Optional[str] = None
+class LogoutRequest(BaseModel):
+    refresh_token: SecretStr
+
+
+class LogoutResponse(BaseModel):
+    pass
+
+
+class LogoutAllRequest(BaseModel):
+    access_token: str
+    access_token_expires_at: datetime
+
+
+class LogoutAllResponse(BaseModel):
+    revoked_sessions: int
