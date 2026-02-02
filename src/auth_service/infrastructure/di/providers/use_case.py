@@ -17,6 +17,7 @@ from auth_service.application.security.policies import (
     RegisterIPRateLimit,
     RegisterEmailRateLimit,
     RefreshTokenRateLimit,
+    RefreshTokenUserIDRateLimit,
     LogoutAllRateLimit
 )
 from auth_service.application.services import RateLimitService
@@ -32,7 +33,7 @@ from auth_service.application.use_cases import (
 class UseCaseProvider(Provider):
 
     @provide(scope=Scope.REQUEST)
-    def login_user_uc(
+    async def login_user_uc(
         self,
         uow: IUnitOfWork,
         user_repo: IUserRepository,
@@ -61,7 +62,7 @@ class UseCaseProvider(Provider):
         )
 
     @provide(scope=Scope.REQUEST)
-    def register_user_uc(
+    async def register_user_uc(
         self,
         uow: IUnitOfWork,
         user_repo: IUserRepository,
@@ -84,7 +85,7 @@ class UseCaseProvider(Provider):
         )
 
     @provide(scope=Scope.REQUEST)
-    def refresh_token_uc(
+    async def refresh_token_uc(
         self,
         uow: IUnitOfWork,
         refresh_session_repo: IRefreshSessionRepository,
@@ -93,6 +94,7 @@ class UseCaseProvider(Provider):
         rate_limit_service: RateLimitService,
         token_policy: TokenPolicy,
         token_rate_limit_policy: RefreshTokenRateLimit,
+        user_id_rate_limit_policy: RefreshTokenUserIDRateLimit,
         clock: IClock,
     ) -> RefreshTokenUseCase:
         return RefreshTokenUseCase(
@@ -103,11 +105,12 @@ class UseCaseProvider(Provider):
             rate_limit_service=rate_limit_service,
             token_policy=token_policy,
             token_rate_limit_policy=token_rate_limit_policy,
+            user_id_rate_limit_policy=user_id_rate_limit_policy,
             clock=clock,
         )
 
     @provide(scope=Scope.REQUEST)
-    def logout_user_uc(
+    async def logout_user_uc(
         self,
         uow: IUnitOfWork,
         refresh_session_repo: IRefreshSessionRepository,
@@ -122,7 +125,7 @@ class UseCaseProvider(Provider):
         )
 
     @provide(scope=Scope.REQUEST)
-    def logout_all_user_uc(
+    async def logout_all_user_uc(
         self,
         uow: IUnitOfWork,
         refresh_session_repo: IRefreshSessionRepository,

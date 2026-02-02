@@ -4,7 +4,7 @@ from dishka import Provider, provide, Scope
 
 from auth_service.application.security.policies import (
     TokenPolicy, LoginEmailRateLimit, LoginIPRateLimit, RegisterEmailRateLimit,
-    RegisterIPRateLimit, RefreshTokenRateLimit, LogoutAllRateLimit
+    RegisterIPRateLimit, RefreshTokenRateLimit, RefreshTokenUserIDRateLimit, LogoutAllRateLimit
 )
 
 from ...config import Config
@@ -55,6 +55,14 @@ class PolicyProvider(Provider):
     def refresh_token_rate_limit(self, config: Config) -> RefreshTokenRateLimit:
         rule = config.rate_limit.refresh_token
         return RefreshTokenRateLimit(
+            attempts=rule.attempts,
+            window=timedelta(seconds=rule.window_seconds),
+        )
+
+    @provide(scope=Scope.APP)
+    def refresh_token_user_id_rate_limit(self, config: Config) -> RefreshTokenUserIDRateLimit:
+        rule = config.rate_limit.refresh_token_user_id
+        return RefreshTokenUserIDRateLimit(
             attempts=rule.attempts,
             window=timedelta(seconds=rule.window_seconds),
         )

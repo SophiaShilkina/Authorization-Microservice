@@ -1,4 +1,4 @@
-from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, SecretStr
 
@@ -10,7 +10,7 @@ class RegisterRequest(BaseModel):
 
 
 class RegisterResponse(BaseModel):
-    id: int
+    id: UUID
     email: EmailStr
     username: str
 
@@ -22,8 +22,6 @@ class LoginRequest(BaseModel):
 
 class LoginResponse(BaseModel):
     access_token: str
-    refresh_token: str
-    expires_at: str
 
 
 class RefreshRequest(BaseModel):
@@ -32,8 +30,6 @@ class RefreshRequest(BaseModel):
 
 class RefreshResponse(BaseModel):
     access_token: str
-    refresh_token: str
-    expires_at: str
 
 
 class LogoutRequest(BaseModel):
@@ -42,11 +38,6 @@ class LogoutRequest(BaseModel):
 
 class LogoutResponse(BaseModel):
     pass
-
-
-class LogoutAllRequest(BaseModel):
-    access_token: str
-    access_token_expires_at: datetime
 
 
 class LogoutAllResponse(BaseModel):

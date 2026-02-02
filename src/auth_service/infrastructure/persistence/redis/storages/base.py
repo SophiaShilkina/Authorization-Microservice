@@ -1,3 +1,3 @@
 class RedisStorage:
     def __init__(self, client):
-        self._redis = client
+        self._redis = client.client

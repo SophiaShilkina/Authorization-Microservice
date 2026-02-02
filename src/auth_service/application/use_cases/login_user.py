@@ -75,7 +75,6 @@ class LoginUserUseCase:
             access_token = self._access_token_service.issue(payload, now)
 
             return LoginUserResult(
-                access_token=access_token.token,
+                access_token=access_token.value,
                 refresh_token=raw_refresh.value,
-                expires_at=access_token.expires_at,
             )

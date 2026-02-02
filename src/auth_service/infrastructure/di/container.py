@@ -1,15 +1,16 @@
-from dishka import make_container, Container
+from dishka import make_async_container, AsyncContainer
 
-from .providers import InfrastructureProvider, PolicyProvider, UseCaseProvider
+from .providers import InfrastructureProvider, PolicyProvider, UseCaseProvider, PostgresProvider
 from ..config import Config
 
 
-def create_container() -> Container:
+def create_container() -> AsyncContainer:
     config = Config.load()
 
-    return make_container(
+    return make_async_container(
         InfrastructureProvider(),
         PolicyProvider(),
         UseCaseProvider(),
+        PostgresProvider(),
         context={Config: config},
     )

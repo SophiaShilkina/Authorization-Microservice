@@ -32,7 +32,7 @@ class RefreshTokenUseCase:
     async def execute(self, cmd: RefreshTokenCommand) -> RefreshTokenResult:
         refresh_hash = self._refresh_token_service.hash(TokenVO(cmd.refresh_token))
 
-        await self._rate_limit_service.check(f'refresh:token:{refresh_hash}', self._token_rl_policy)
+        await self._rate_limit_service.check(f'refresh:token:{refresh_hash.value}', self._token_rl_policy)
 
         async with self._uow:
             session = await self._refresh_session_repo.get_by_hash(refresh_hash)
@@ -60,7 +60,6 @@ class RefreshTokenUseCase:
             access_token = self._access_token_service.issue(payload, now)
 
             return RefreshTokenResult(
-                access_token=access_token.token,
+                access_token=access_token.value,
                 refresh_token=new_raw_refresh.value,
-                expires_at=access_token.expires_at,
             )

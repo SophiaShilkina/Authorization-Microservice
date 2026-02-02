@@ -1,6 +1,5 @@
 from typing import Protocol
 from uuid import UUID
-from contextlib import AbstractAsyncContextManager
 
 from auth_service.domain.entities import UserDM, RefreshSessionDM
 from auth_service.domain.value_objects import EmailVO, TokenHashVO

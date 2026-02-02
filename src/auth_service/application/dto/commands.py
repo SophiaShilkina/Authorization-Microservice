@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,7 +29,6 @@ class LogoutUserCommand:
 @dataclass(frozen=True, slots=True)
 class LogoutAllUserCommand:
     access_token: str
-    access_token_expires_at: datetime
 
 
 @dataclass(frozen=True, slots=True)

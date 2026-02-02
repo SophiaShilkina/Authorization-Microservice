@@ -1,9 +1,6 @@
-from typing import AsyncGenerator
-
 from dishka import Provider, provide, Scope
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...persistence.postgres.client import PostgresClient
 from ...persistence.redis.client import RedisClient
 
 from ...persistence.postgres.uow import SqlAlchemyUnitOfWork
@@ -32,22 +29,6 @@ from auth_service.application.ports import (
 class InfrastructureProvider(Provider):
 
     @provide(scope=Scope.APP)
-    def postgres_client(self, config: Config) -> PostgresClient:
-        pg = config.postgres
-        return PostgresClient(
-            url=pg.dsn,
-            echo=pg.echo,
-            echo_pool=pg.echo_pool,
-            pool_size=pg.pool_size,
-            max_overflow=pg.max_overflow,
-        )
-
-    @provide(scope=Scope.REQUEST)
-    async def session_provider(self, postgres_client: PostgresClient) -> AsyncGenerator[AsyncSession, None]:
-        async with postgres_client.session_factory() as session:
-            yield session
-
-    @provide(scope=Scope.APP)
     def redis_client(self, config: Config) -> RedisClient:
         r = config.redis
         return RedisClient(
@@ -71,10 +52,10 @@ class InfrastructureProvider(Provider):
         return SqlAlchemyUserRepository(session)
 
     @provide(scope=Scope.REQUEST)
-    def refresh_session_repository(self, session: AsyncSession) -> IRefreshSessionRepository:
-        return SqlAlchemyRefreshSessionRepository(session)
+    def refresh_session_repository(self, session: AsyncSession, clock: IClock) -> IRefreshSessionRepository:
+        return SqlAlchemyRefreshSessionRepository(session, clock)
 
-    @provide(scope=Scope.APP)
+    @provide(scope=Scope.REQUEST)
     def rate_limit_service(self, rate_limit_storage: IRateLimitStorage) -> RateLimitService:
         return RateLimitService(rate_limit_storage)
 
@@ -83,8 +64,14 @@ class InfrastructureProvider(Provider):
         return RandomRefreshTokenService()
 
     @provide(scope=Scope.APP)
-    def access_token_service(self) -> IAccessTokenService:
-        return JoseAccessTokenService()
+    def access_token_service(self, config: Config) -> IAccessTokenService:
+        at = config.access_token
+        return JoseAccessTokenService(
+            public_key=at.public_key.get_secret_value(),
+            private_key=at.private_key.get_secret_value(),
+            algorithm=at.algorithm,
+            ttl_minutes=at.ttl_minutes,
+        )
 
     @provide(scope=Scope.APP)
     def email_service(self) -> IEmailService:

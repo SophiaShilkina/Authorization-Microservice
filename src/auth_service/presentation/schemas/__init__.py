@@ -9,7 +9,6 @@ __all__ = [
     'RefreshResponse',
     'LogoutRequest',
     'LogoutResponse',
-    'LogoutAllRequest',
     'LogoutAllResponse',
 ]
 
@@ -24,6 +23,5 @@ from .auth import (
     RefreshResponse,
     LogoutRequest,
     LogoutResponse,
-    LogoutAllRequest,
     LogoutAllResponse,
 )

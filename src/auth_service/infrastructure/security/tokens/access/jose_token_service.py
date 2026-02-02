@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 from uuid import uuid4, UUID
 
+from auth_service.domain.value_objects import TokenVO
 from auth_service.application.ports import IAccessTokenService
-from auth_service.application.security.models import AccessTokenPayload, AccessToken
+from auth_service.application.security.models import AccessTokenPayload
 from auth_service.infrastructure.expections import InvalidAccessToken
 
 from jose import jwt, JWTError
@@ -10,30 +11,30 @@ from jose import jwt, JWTError
 
 class JoseAccessTokenService(IAccessTokenService):
     def __init__(self,
-                 secret_key: str,
+                 private_key: str,
+                 public_key: str,
                  algorithm: str,
                  ttl_minutes: int):
-        self._secret_key = secret_key
+        self._private_key = private_key
+        self._public_key = public_key
         self._algorithm = algorithm
         self._ttl = ttl_minutes
 
-    def issue(self, payload: AccessTokenPayload, now: datetime) -> AccessToken:
+    def issue(self, payload: AccessTokenPayload, now: datetime) -> TokenVO:
         exp = now + timedelta(minutes=self._ttl)
         claims = {
+            "iss": "Auth Server",
             'sub': str(payload.user_id),
             'iat': int(now.timestamp()),
             'exp': int(exp.timestamp()),
             'jti': uuid4().hex,
         }
 
-        return AccessToken(
-            token=jwt.encode(claims, self._secret_key, algorithm=self._algorithm),
-            expires_at=exp,
-        )
+        return TokenVO(jwt.encode(claims, self._private_key, algorithm=self._algorithm))
 
-    def verify(self, token: AccessToken) -> AccessTokenPayload:
+    def verify(self, token: TokenVO) -> AccessTokenPayload:
         try:
-            payload = jwt.decode(token.token, self._secret_key, algorithms=[self._algorithm])
+            payload = jwt.decode(token.value, self._public_key, algorithms=[self._algorithm])
             return AccessTokenPayload(user_id=UUID(payload['sub']))
         except JWTError:
             raise InvalidAccessToken()

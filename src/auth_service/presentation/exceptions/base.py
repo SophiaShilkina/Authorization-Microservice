@@ -13,9 +13,9 @@ def error_response(
 ):
     logger.exception('Program error',
                      extra={
-                         'type': error_type.__name__,
-                         'code': exc.__class__.__name__,
-                         'message': str(exc),
+                         'error_type': error_type.__name__,
+                         'error_code': exc.__class__.__name__,
+                         'error_message': str(exc),
                      })
 
     return ORJSONResponse(

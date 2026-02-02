@@ -7,6 +7,9 @@ def camel_case_to_snake_case(input_str: str) -> str:
     >>> camel_case_to_snake_case("SDKDemo")
     'sdk_demo'
     """
+    if "ORM" in input_str:
+        input_str = input_str.replace("ORM", "")
+
     chars = []
     for c_idx, char in enumerate(input_str):
         if c_idx and char.isupper():

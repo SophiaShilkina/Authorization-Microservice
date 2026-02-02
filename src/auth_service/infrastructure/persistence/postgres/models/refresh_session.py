@@ -31,7 +31,7 @@ class RefreshSessionORM(IdIntPKMixin, CUDateTimeMixin, BaseORM):
             user_id=session.user_id,
             token_hash=session.token_hash.value,
             expires_at=session.expires_at.value,
-            revoked=session.is_revoked,
+            is_revoked=session.is_revoked,
         )
 
     def to_domain(self) -> RefreshSessionDM:

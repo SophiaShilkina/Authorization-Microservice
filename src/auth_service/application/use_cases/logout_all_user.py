@@ -1,7 +1,7 @@
+from auth_service.domain.value_objects import TokenVO
 from ..dto import LogoutAllUserCommand, LogoutAllUserResult
 from ..ports import IUnitOfWork, IRefreshSessionRepository, IAccessTokenService, IClock
 from ..services import RateLimitService
-from ..security.models import AccessToken
 from ..security.policies import LogoutAllRateLimit
 
 
@@ -22,9 +22,7 @@ class LogoutAllUserUseCase:
         self._clock = clock
 
     async def execute(self, cmd: LogoutAllUserCommand) -> LogoutAllUserResult:
-        payload = self._access_token_service.verify(
-            AccessToken(token=cmd.access_token, expires_at=cmd.access_token_expires_at)
-        )
+        payload = self._access_token_service.verify(TokenVO(value=cmd.access_token))
 
         await self._rate_limit_service.check(f'logout_all:user_id:{payload.user_id}', self._user_id_policy)
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Response
+from fastapi import APIRouter, Request, Response, Depends
 from dishka.integrations.fastapi import inject
 from dishka import FromDishka
 
@@ -18,7 +18,8 @@ from auth_service.application.dto import (
     LogoutUserCommand,
     LogoutAllUserCommand
 )
-from auth_service.infrastructure import config
+from auth_service.infrastructure.config import Config
+from auth_service.presentation.api.dependencies import get_bearer_token
 
 router = APIRouter()
 
@@ -38,7 +39,7 @@ async def register_user(
     cmd = RegisterUserCommand(
         email=str(body.email),
         username=body.username,
-        password=str(body.password),
+        password=body.password.get_secret_value(),
         context=ContextDTO(
             ip=request.client.host if request.client else None,
             user_agent=request.headers.get('user-agent'),
@@ -70,10 +71,11 @@ async def login_user(
         request: Request,
         response: Response,
         uc: FromDishka[LoginUserUseCase],
+        config: FromDishka[Config],
 ):
     cmd = LoginUserCommand(
         email=str(body.email),
-        password=str(body.password),
+        password=body.password.get_secret_value(),
         context=ContextDTO(
             ip=request.client.host if request.client else None,
             user_agent=request.headers.get('user-agent'),
@@ -81,22 +83,20 @@ async def login_user(
     )
 
     result = await uc.execute(cmd)
-    #
-    # response.set_cookie(
-    #     key=config.cookie.name,
-    #     value=data['refresh_token'],
-    #     httponly=config.cookie.httponly,
-    #     secure=config.cookie.secure,
-    #     samesite=config.cookie.samesite,
-    #     max_age=config.cookie.max_age,
-    # )
+
+    response.set_cookie(
+        key=config.cookie.name,
+        value=result.refresh_token,
+        httponly=config.cookie.httponly,
+        secure=config.cookie.secure,
+        samesite=config.cookie.samesite,  # type: ignore
+        max_age=config.cookie.max_age,
+    )
 
     return {
         'status': 'OK',
         'data': {
             'access_token': result.access_token,
-            'refresh_token': result.refresh_token,
-            'expires_at': result.expires_at,
         }
     }
 
@@ -109,40 +109,55 @@ async def login_user(
 @inject
 async def refresh_token(
         body: schemas.RefreshRequest,
+        response: Response,
         uc: FromDishka[RefreshTokenUseCase],
+        config: FromDishka[Config],
 ):
     cmd = RefreshTokenCommand(
-        refresh_token=str(body.refresh_token),
+        refresh_token=body.refresh_token.get_secret_value(),
     )
 
     result = await uc.execute(cmd)
+
+    response.set_cookie(
+        key=config.cookie.name,
+        value=result.refresh_token,
+        httponly=config.cookie.httponly,
+        secure=config.cookie.secure,
+        samesite=config.cookie.samesite,  # type: ignore
+        max_age=config.cookie.max_age,
+    )
 
     return {
         'status': 'OK',
         'data': {
             'access_token': result.access_token,
-            'refresh_token': result.refresh_token,
-            'expires_at': result.expires_at,
         }
     }
 
 
 
 @router.post('/logout',
-             response_model=schemas.ResponseEnvelope[schemas.LogoutResponse],
+             response_model=schemas.ResponseEnvelope[None],
              responses={
                  500: {'model': schemas.ErrorResponse},
              })
 @inject
 async def logout_user(
         body: schemas.LogoutRequest,
+        response: Response,
         uc: FromDishka[LogoutUserUseCase],
+        config: FromDishka[Config],
 ):
     cmd = LogoutUserCommand(
-        refresh_token=str(body.refresh_token),
+        refresh_token=body.refresh_token.get_secret_value(),
     )
 
     await uc.execute(cmd)
+
+    response.delete_cookie(
+        key=config.cookie.name,
+    )
 
     return {
         'status': 'OK',
@@ -150,22 +165,27 @@ async def logout_user(
     }
 
 
-@router.post('/logout-all',
+@router.get('/logout-all',
              response_model=schemas.ResponseEnvelope[schemas.LogoutAllResponse],
              responses={
                  500: {'model': schemas.ErrorResponse},
              })
 @inject
 async def logout_all_user(
-        body: schemas.LogoutAllRequest,
+        response: Response,
         uc: FromDishka[LogoutAllUserUseCase],
+        config: FromDishka[Config],
+        access_token: str = Depends(get_bearer_token),
 ):
     cmd = LogoutAllUserCommand(
-        access_token=body.access_token,
-        access_token_expires_at=body.access_token_expires_at,
+        access_token=access_token,
     )
 
     result = await uc.execute(cmd)
+
+    response.delete_cookie(
+        key=config.cookie.name,
+    )
 
     return {
         'status': 'OK',

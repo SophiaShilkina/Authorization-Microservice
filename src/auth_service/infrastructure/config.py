@@ -5,7 +5,7 @@ from pydantic import Field
 from pydantic.types import SecretStr
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SETTINGS_PATH = BASE_DIR / 'settings'
+SETTINGS_PATH = BASE_DIR / 'secrets'
 
 
 # =========== Base schema ==============
@@ -32,7 +32,7 @@ class PostgresConfig(ConfigBase):
     password: SecretStr
     db: str
 
-    # Engine settings
+    # Engine secrets
     echo: bool = False
     echo_pool: bool = False
     pool_size: int = 20
@@ -55,7 +55,7 @@ class RedisConfig(ConfigBase):
     host: str
     port: int
 
-    # Client settings
+    # Client secrets
     encoding: str = 'utf-8'
     decode_responses: bool = True
 
@@ -73,7 +73,8 @@ class FastAPIConfig(ConfigBase):
 class AccessTokenConfig(ConfigBase):
     model_config = SettingsConfigDict(env_prefix='access_token_')
 
-    secret_key: SecretStr
+    public_key: SecretStr
+    private_key: SecretStr
     algorithm: str
     ttl_minutes: int = 15
 

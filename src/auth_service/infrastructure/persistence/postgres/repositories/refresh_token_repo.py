@@ -1,18 +1,20 @@
 from uuid import UUID
-from datetime import datetime, timezone
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth_service.domain.entities import RefreshSessionDM
 from auth_service.domain.value_objects import TokenHashVO
-from auth_service.application.ports import IRefreshSessionRepository
+from auth_service.application.ports import IRefreshSessionRepository, IClock
 from ..models import RefreshSessionORM
 
 
-class SqlAlchemyRefreshSessionRepository(IRefreshSessionRepository):
-    def __init__(self, session: AsyncSession):
+class SqlAlchemyRefreshSessionRepository(IRefreshSessionRepository, IClock):
+    def __init__(self,
+                 session: AsyncSession,
+                 clock: IClock,):
         self._session = session
+        self._clock = clock
 
     async def create(self, refresh_session: RefreshSessionDM) -> None:
         orm_refresh_session = RefreshSessionORM.from_domain(refresh_session)
@@ -20,10 +22,10 @@ class SqlAlchemyRefreshSessionRepository(IRefreshSessionRepository):
 
     async def update(self, refresh_session: RefreshSessionDM) -> None:
         stmt = update(RefreshSessionORM).where(
-            RefreshSessionORM.token_hash == refresh_session.token_hash
+            RefreshSessionORM.token_hash == refresh_session.token_hash.value
         ).values(
             is_revoked=True,
-            updated_at=datetime.now(timezone.utc)
+            updated_at=self._clock.now()
         )
         await self._session.execute(stmt)
 
@@ -39,7 +41,7 @@ class SqlAlchemyRefreshSessionRepository(IRefreshSessionRepository):
             RefreshSessionORM.is_revoked == False,
         ).values(
             is_revoked=True,
-            updated_at=datetime.now(timezone.utc)
+            updated_at=self._clock.now()
         )
         result = await self._session.execute(stmt)
         return result.rowcount  # type: ignore

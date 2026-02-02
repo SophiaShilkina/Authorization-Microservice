@@ -2,8 +2,8 @@ from typing import Protocol
 from datetime import datetime
 
 from auth_service.domain.value_objects import TokenVO, TokenHashVO, PasswordHashVO
-from auth_service.application.security.policies import PasswordPolicy
-from ..security.models import AccessToken, AccessTokenPayload
+from ..security.policies import PasswordPolicy
+from ..security.models import AccessTokenPayload
 
 
 class IPasswordHasher(Protocol):
@@ -30,6 +30,6 @@ class IRefreshTokenService(Protocol):
 class IAccessTokenService(Protocol):
     """Interface (port) for access token service"""
 
-    def issue(self, payload: AccessTokenPayload, now: datetime) -> AccessToken: ...
+    def issue(self, payload: AccessTokenPayload, now: datetime) -> TokenVO: ...
 
-    def verify(self, token: AccessToken) -> AccessTokenPayload: ...
+    def verify(self, token: TokenVO) -> AccessTokenPayload: ...
