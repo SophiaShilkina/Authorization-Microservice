@@ -8,10 +8,11 @@ from auth_service.application.exceptions import AuthenticationFailed, TokenExpir
 
 
 @pytest.fixture
-def use_case(refresh_session_repo_mock, token_service_mock, clock_mock):
+def use_case(uow_mock, refresh_session_repo_mock, refresh_token_service_mock, clock_mock):
     return LogoutUserUseCase(
+        uow=uow_mock,
         refresh_session_repo=refresh_session_repo_mock,
-        token_service=token_service_mock,
+        refresh_token_service=refresh_token_service_mock,
         clock=clock_mock
     )
 

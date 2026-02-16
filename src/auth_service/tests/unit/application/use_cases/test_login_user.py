@@ -7,23 +7,21 @@ from unittest.mock import Mock
 from auth_service.domain.entities import UserDM
 from auth_service.domain.value_objects import EmailVO, PasswordHashVO
 from auth_service.application.use_cases.login_user import LoginUserUseCase
-from auth_service.application.dto import LoginUserCommand
+from auth_service.application.dto import LoginUserCommand, ContextDTO
 from auth_service.application.security.policies import PasswordPolicy
 from auth_service.application.exceptions import AuthenticationFailed
 
 
 @pytest.fixture
-def use_case(user_repo_mock,
-             refresh_session_repo_mock,
-             password_hasher_mock,
-             token_service_mock,
-             rate_limit_service_mock,
-             clock_mock):
+def use_case(uow_mock, user_repo_mock, refresh_session_repo_mock, password_hasher_mock, refresh_token_service_mock,
+             access_token_service_mock, rate_limit_service_mock, clock_mock):
     return LoginUserUseCase(
+        uow=uow_mock,
         user_repo=user_repo_mock,
         refresh_session_repo=refresh_session_repo_mock,
         password_hasher=password_hasher_mock,
-        token_service=token_service_mock,
+        refresh_token_service=refresh_token_service_mock,
+        access_token_service=access_token_service_mock,
         rate_limit_service=rate_limit_service_mock,
         token_policy=Mock(refresh_ttl=timedelta(days=7), access_ttl=timedelta(hours=1)),
         email_rate_limit_policy=Mock(),
@@ -32,9 +30,17 @@ def use_case(user_repo_mock,
     )
 
 
+@pytest.fixture
+def context():
+    return ContextDTO(
+        ip='127.0.0.1',
+        user_agent='user_agent',
+    )
+
+
 @pytest.mark.asyncio
 async def test_execute_success(use_case, user_repo_mock, password_hasher_mock,
-                               token_service_mock, refresh_session_repo_mock):
+                               access_token_service_mock, refresh_session_repo_mock, context):
     user = Mock(
         spec=UserDM,
         id=uuid4(),
@@ -47,7 +53,7 @@ async def test_execute_success(use_case, user_repo_mock, password_hasher_mock,
     command = LoginUserCommand(
         email='test@example.com',
         password='Pass_word123!',
-        context={'ip': '127.0.0.1'}
+        context=context
     )
 
     result = await use_case.execute(command)
@@ -59,15 +65,15 @@ async def test_execute_success(use_case, user_repo_mock, password_hasher_mock,
     password_hasher_mock.verify.assert_called_once_with(PasswordPolicy('Pass_word123!'), user.password_hash)
     user.ensure_can_login.assert_called_once()
     refresh_session_repo_mock.create.assert_called_once()
-    token_service_mock.issue_access_token.assert_called_once()
+    access_token_service_mock.issue.assert_called_once()
 
 
 @pytest.mark.asyncio
-async def test_execute_user_not_found(use_case, password_hasher_mock):
+async def test_execute_user_not_found(use_case, password_hasher_mock, context):
     command = LoginUserCommand(
         email='nonexistent@example.com',
         password='Pass_word123!',
-        context={'ip': '127.0.0.1'}
+        context=context
     )
 
     with pytest.raises(AuthenticationFailed):
@@ -77,7 +83,7 @@ async def test_execute_user_not_found(use_case, password_hasher_mock):
 
 
 @pytest.mark.asyncio
-async def test_execute_invalid_password(use_case, user_repo_mock, password_hasher_mock):
+async def test_execute_invalid_password(use_case, user_repo_mock, password_hasher_mock, context):
     user = Mock(
         spec=UserDM,
         password_hash=PasswordHashVO('password_hash_jro44223m3n32kn5n2ksdo4e234dsdom3k2kmdl3l43iwes9v')
@@ -88,7 +94,7 @@ async def test_execute_invalid_password(use_case, user_repo_mock, password_hashe
     command = LoginUserCommand(
         email='test@example.com',
         password='WrongPass_word!1',
-        context={'ip': '127.0.0.1'}
+        context=context
     )
 
     with pytest.raises(AuthenticationFailed):
@@ -98,7 +104,7 @@ async def test_execute_invalid_password(use_case, user_repo_mock, password_hashe
 
 
 @pytest.mark.asyncio
-async def test_execute_user_blocked(use_case, user_repo_mock):
+async def test_execute_user_blocked(use_case, user_repo_mock, context):
     user = Mock(spec=UserDM)
     user_repo_mock.get_by_email.return_value = user
     user.ensure_can_login.side_effect = AuthenticationFailed('The user is blocked or deactivate')
@@ -106,7 +112,7 @@ async def test_execute_user_blocked(use_case, user_repo_mock):
     command = LoginUserCommand(
         email='blocked@example.com',
         password='Pass_word123!',
-        context={'ip': '127.0.0.1'}
+        context=context
     )
 
     with pytest.raises(AuthenticationFailed):
@@ -114,14 +120,14 @@ async def test_execute_user_blocked(use_case, user_repo_mock):
 
 
 @pytest.mark.asyncio
-async def test_execute_rate_limit_called(use_case, user_repo_mock, rate_limit_service_mock):
+async def test_execute_rate_limit_called(use_case, user_repo_mock, rate_limit_service_mock, context):
     user = Mock(spec=UserDM)
     user_repo_mock.get_by_email.return_value = user
 
     command = LoginUserCommand(
         email='test@example.com',
         password='Pass_word123!',
-        context={'ip': '192.168.1.1'}
+        context=context
     )
 
     await use_case.execute(command)
@@ -131,6 +137,6 @@ async def test_execute_rate_limit_called(use_case, user_repo_mock, rate_limit_se
         use_case._email_policy
     )
     rate_limit_service_mock.check.assert_any_call(
-        'login:ip:192.168.1.1',
+        'login:ip:127.0.0.1',
         use_case._ip_policy
     )

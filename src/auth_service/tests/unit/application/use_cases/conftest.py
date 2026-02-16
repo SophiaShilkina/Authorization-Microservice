@@ -1,8 +1,13 @@
-from datetime import datetime, timezone, timedelta
-from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 
 import pytest
-from unittest.mock import Mock, AsyncMock, MagicMock
+from unittest.mock import Mock, AsyncMock
+
+
+@pytest.fixture
+def uow_mock():
+    mock = AsyncMock()
+    return mock
 
 
 @pytest.fixture
@@ -13,16 +18,10 @@ def user_repo_mock():
     return mock
 
 
-@asynccontextmanager
-async def fake_transaction():
-    yield
-
-
 @pytest.fixture
 def refresh_session_repo_mock():
     mock = AsyncMock()
     mock.get_by_hash.return_value = None
-    mock.transaction = MagicMock(return_value=fake_transaction())
     return mock
 
 
@@ -36,20 +35,25 @@ def password_hasher_mock():
 
 
 @pytest.fixture
-def token_service_mock():
+def access_token_service_mock():
     mock = Mock()
-    mock.hash_token.return_value = 'refresh_token_hash_2kn5n2ksdo4e234dsdom3k2kmjro44223m3n3dl3l43iwes9v'
-    mock.issue_refresh_token.return_value = (
-        Mock(value='refresh_token_n5n2ksdo4edsdom3k2kmjro44223m3n3dl3l43iwes9v2k234'),
-        Mock(value='refresh_token_hash_2kn5n2ksdo4e234dsdom3k2kmjro44223m3n3dl3l43iwes9v')
-    )
-    mock.issue_access_token.return_value = Mock(
-        token='access_token_om3k2kmdsdjro4.4223m3n3dl3l43iw.n2ksdo4e234es9v2kn5',
-        expires_at=datetime.now(timezone.utc) + timedelta(hours=1)
+    mock.issue.return_value = Mock(
+        value='access_token_om3k2kmdsdjro4.4223m3n3dl3l43iw.n2ksdo4e234es9v2kn5'
     )
     payload_mock = Mock()
     payload_mock.user_id = "user-123"
-    mock.verify_access_token.return_value = payload_mock
+    mock.verify.return_value = payload_mock
+    return mock
+
+
+@pytest.fixture
+def refresh_token_service_mock():
+    mock = Mock()
+    mock.hash.return_value = Mock(value='refresh_token_hash_2kn5n2ksdo4e234dsdom3k2kmjro44223m3n3dl3l43iwes9v')
+    mock.generate.return_value = (
+        Mock(value='refresh_token_n5n2ksdo4edsdom3k2kmjro44223m3n3dl3l43iwes9v2k234'),
+        Mock(value='refresh_token_hash_2kn5n2ksdo4e234dsdom3k2kmjro44223m3n3dl3l43iwes9v')
+    )
     return mock
 
 

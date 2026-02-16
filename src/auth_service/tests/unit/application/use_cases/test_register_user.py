@@ -2,16 +2,17 @@ import pytest
 from unittest.mock import Mock
 
 from auth_service.application.use_cases.register_user import RegisterUserUseCase
-from auth_service.application.dto import RegisterUserCommand
+from auth_service.application.dto import RegisterUserCommand, ContextDTO
 from auth_service.application.exceptions import AlreadyExists
 from auth_service.domain.entities import UserDM
 from auth_service.domain.value_objects import EmailVO
 
 
 @pytest.fixture
-def use_case(user_repo_mock, password_hasher_mock, email_service_mock,
+def use_case(uow_mock, user_repo_mock, password_hasher_mock, email_service_mock,
              rate_limit_service_mock, clock_mock):
     return RegisterUserUseCase(
+        uow=uow_mock,
         user_repo=user_repo_mock,
         password_hasher=password_hasher_mock,
         email_service=email_service_mock,
@@ -28,7 +29,10 @@ def command():
         email='newuser@example.com',
         password='Pass_word123!',
         username='user',
-        context={'ip': '192.168.1.1'}
+        context=ContextDTO(
+            ip='192.168.1.1',
+            user_agent='user_agent',
+        )
     )
 
 
