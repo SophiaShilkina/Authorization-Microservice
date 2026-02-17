@@ -9,10 +9,12 @@ class Config(BaseSettings):
     redis: schemas.RedisConfig = Field(default_factory=schemas.RedisConfig)
 
     fastapi: schemas.FastAPIConfig = Field(default_factory=schemas.FastAPIConfig)
+    cors: schemas.CORSConfig = Field(default_factory=schemas.CORSConfig)
+    cookie: schemas.CookieConfig = Field(default_factory=schemas.CookieConfig)
 
     access_token: schemas.AccessTokenConfig = Field(default_factory=schemas.AccessTokenConfig)
     refresh_token: schemas.RefreshTokenConfig = Field(default_factory=schemas.RefreshTokenConfig)
-    cookie: schemas.CookieConfig = Field(default_factory=schemas.CookieConfig)
+
     rate_limit: schemas.RateLimitConfig = Field(default_factory=schemas.RateLimitConfig)
 
     @classmethod

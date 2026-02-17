@@ -2,6 +2,7 @@ __all__ = [
     'PostgresConfig',
     'RedisConfig',
     'FastAPIConfig',
+    'CORSConfig',
     'CookieConfig',
     'AccessTokenConfig',
     'RefreshTokenConfig',
@@ -9,6 +10,6 @@ __all__ = [
 ]
 
 from .persistence import PostgresConfig, RedisConfig
-from .app import FastAPIConfig, CookieConfig
+from .app import FastAPIConfig, CORSConfig, CookieConfig
 from .tokens import AccessTokenConfig, RefreshTokenConfig
 from .throttling import RateLimitConfig
