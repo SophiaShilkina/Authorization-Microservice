@@ -24,16 +24,8 @@ class LoginResponse(BaseModel):
     access_token: str
 
 
-class RefreshRequest(BaseModel):
-    refresh_token: SecretStr
-
-
 class RefreshResponse(BaseModel):
     access_token: str
-
-
-class LogoutRequest(BaseModel):
-    refresh_token: SecretStr
 
 
 class LogoutResponse(BaseModel):

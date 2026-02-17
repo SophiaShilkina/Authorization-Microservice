@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Response, Depends
+from fastapi import APIRouter, Request, Response, Depends, HTTPException
 from dishka.integrations.fastapi import inject
 from dishka import FromDishka
 
@@ -104,17 +104,23 @@ async def login_user(
 @router.post('/refresh',
              response_model=schemas.ResponseEnvelope[schemas.RefreshResponse],
              responses={
+                 401: {'model': schemas.ErrorResponse, 'description': 'Unauthorized'},
                  500: {'model': schemas.ErrorResponse},
              })
 @inject
 async def refresh_token(
-        body: schemas.RefreshRequest,
+        request: Request,
         response: Response,
         uc: FromDishka[RefreshTokenUseCase],
         config: FromDishka[Config],
 ):
+    refresh_token_value = request.cookies.get(config.cookie.name)
+
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail='Refresh token required')
+
     cmd = RefreshTokenCommand(
-        refresh_token=body.refresh_token.get_secret_value(),
+        refresh_token=refresh_token_value,
     )
 
     result = await uc.execute(cmd)
@@ -136,21 +142,26 @@ async def refresh_token(
     }
 
 
-
 @router.post('/logout',
-             response_model=schemas.ResponseEnvelope[None],
+             response_model=schemas.ResponseEnvelope[None],  # type: ignore
              responses={
+                 401: {'model': schemas.ErrorResponse, 'description': 'Unauthorized'},
                  500: {'model': schemas.ErrorResponse},
              })
 @inject
 async def logout_user(
-        body: schemas.LogoutRequest,
+        request: Request,
         response: Response,
         uc: FromDishka[LogoutUserUseCase],
         config: FromDishka[Config],
 ):
+    refresh_token_value = request.cookies.get(config.cookie.name)
+
+    if not refresh_token:
+        raise HTTPException(status_code=401, detail='Refresh token required')
+
     cmd = LogoutUserCommand(
-        refresh_token=body.refresh_token.get_secret_value(),
+        refresh_token=refresh_token_value,
     )
 
     await uc.execute(cmd)
@@ -165,11 +176,11 @@ async def logout_user(
     }
 
 
-@router.get('/logout-all',
-             response_model=schemas.ResponseEnvelope[schemas.LogoutAllResponse],
-             responses={
-                 500: {'model': schemas.ErrorResponse},
-             })
+@router.post('/logout-all',
+            response_model=schemas.ResponseEnvelope[schemas.LogoutAllResponse],
+            responses={
+                500: {'model': schemas.ErrorResponse},
+            })
 @inject
 async def logout_all_user(
         response: Response,
