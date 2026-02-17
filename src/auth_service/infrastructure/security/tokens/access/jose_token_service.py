@@ -4,7 +4,7 @@ from uuid import uuid4, UUID
 from auth_service.domain.value_objects import TokenVO
 from auth_service.application.ports import IAccessTokenService
 from auth_service.application.security.models import AccessTokenPayload
-from auth_service.infrastructure.expections import InvalidAccessToken
+from auth_service.infrastructure.exceptions import InvalidAccessToken
 
 from jose import jwt, JWTError
 

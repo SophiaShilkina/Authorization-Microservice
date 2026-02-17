@@ -1,7 +1,7 @@
 from fastapi import Request
 
 from .base import error_response
-from auth_service.infrastructure.expections import SecurityError, InvalidAccessToken
+from auth_service.infrastructure.exceptions import SecurityError, InvalidAccessToken
 
 
 def infra_security_handler(_: Request, exc: SecurityError):

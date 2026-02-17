@@ -10,7 +10,7 @@ from auth_service.application.exceptions import (
     Violation as AppViolation,
     AuthError
 )
-from auth_service.infrastructure.expections import SecurityError
+from auth_service.infrastructure.exceptions import SecurityError
 
 
 def register_exception_handlers(app: FastAPI):

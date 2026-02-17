@@ -45,4 +45,3 @@ class SqlAlchemyRefreshSessionRepository(IRefreshSessionRepository, IClock):
         )
         result = await self._session.execute(stmt)
         return result.rowcount  # type: ignore
-
