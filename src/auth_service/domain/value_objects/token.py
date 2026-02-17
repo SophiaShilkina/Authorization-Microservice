@@ -14,7 +14,8 @@ class TokenVO:
         if not self.value.strip():
             raise EmptyValueError('Token value cannot be empty')
 
-    def __str__(self) -> str:
-        if len(self.value) <= 8:
-            return '***'
-        return f'{self.value[:4]}...{self.value[-4:]}'
+    def __str__(self):
+        return '********'
+
+    def __repr__(self):
+        return 'TokenVO(value="********")'
