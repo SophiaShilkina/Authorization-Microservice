@@ -12,7 +12,7 @@ def setup_logging():
             'name': 'logger'
         },
         static_fields={
-            'service': 'CaringTails'
+            'service': 'Auth Service'
         }
     )
 
