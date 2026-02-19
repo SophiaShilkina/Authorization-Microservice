@@ -1,14 +1,15 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from uuid import UUID, uuid4
 from datetime import datetime
 
+from .base import BaseDM
 from ..value_objects import EmailVO, UsernameVO, PasswordHashVO
 from ..exceptions import InvariantViolation, BusinessRuleViolation
-from ..events import UserRegisteredEvent, DomainEvent
+from ..events import UserRegisteredEvent
 
 
 @dataclass(slots=True)
-class UserDM:
+class UserDM(BaseDM):
     _id: UUID
     _email: EmailVO
     _username: UsernameVO
@@ -16,7 +17,6 @@ class UserDM:
     _active: bool
     _blocked: bool
     _verified: bool
-    _domain_events: list[DomainEvent] = field(default_factory=list, init=False, repr=False)
 
     @property
     def id(self) -> UUID:
@@ -65,7 +65,7 @@ class UserDM:
             _blocked=False,
         )
 
-        user.add_domain_event(
+        user._add_domain_event(
             UserRegisteredEvent(
                 user_id=user.id,
                 email=user.email.value,
@@ -139,11 +139,3 @@ class UserDM:
 
     def change_password_hash(self, new_password_hash: PasswordHashVO):
         self._password_hash = new_password_hash
-
-    def add_domain_event(self, event) -> None:
-        self._domain_events.append(event)
-
-    def pull_domain_events(self) -> list:
-        events = self._domain_events.copy()
-        self._domain_events.clear()
-        return events

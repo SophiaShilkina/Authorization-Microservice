@@ -1,19 +1,19 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
+from .base import BaseDM
 from ..value_objects import TokenHashVO, ExpiresAtVO
 from ..exceptions import InvariantViolation
-from ..events import CreateRefreshSessionEvent, DomainEvent
+from ..events import CreateRefreshSessionEvent
 
 
 @dataclass(slots=True)
-class RefreshSessionDM:
+class RefreshSessionDM(BaseDM):
     _user_id: UUID
     _token_hash: TokenHashVO
     _expires_at: ExpiresAtVO
     _revoked: bool
-    _domain_events: list[DomainEvent] = field(default_factory=list, init=False, repr=False)
 
     @property
     def user_id(self) -> UUID:
@@ -47,7 +47,7 @@ class RefreshSessionDM:
             _revoked=False,
         )
 
-        refresh_session.add_domain_event(
+        refresh_session._add_domain_event(
             CreateRefreshSessionEvent(
                 user_id=refresh_session.user_id,
                 expires_at=refresh_session.expires_at.value,
@@ -101,11 +101,3 @@ class RefreshSessionDM:
         )
 
         return new_session
-
-    def add_domain_event(self, event) -> None:
-        self._domain_events.append(event)
-
-    def pull_domain_events(self) -> list:
-        events = self._domain_events.copy()
-        self._domain_events.clear()
-        return events
