@@ -8,7 +8,6 @@ from ...persistence.postgres.repositories import SqlAlchemyUserRepository, SqlAl
 from ...persistence.redis.storages import RedisRateLimitStorage
 from ...security.tokens import JoseAccessTokenService, RandomRefreshTokenService
 from ...security.password import ArgonPasswordHasher
-from ...email_service.fake_email_service import FakeEmailService
 from ...clock import SystemClock
 
 from ...config import Config
@@ -20,7 +19,6 @@ from auth_service.application.ports import (
     IRateLimitStorage,
     IRefreshTokenService,
     IAccessTokenService,
-    IEmailService,
     IPasswordHasher,
     IClock, IUnitOfWork,
 )
@@ -72,10 +70,6 @@ class InfrastructureProvider(Provider):
             algorithm=at.algorithm,
             ttl_minutes=at.ttl_minutes,
         )
-
-    @provide(scope=Scope.APP)
-    def email_service(self) -> IEmailService:
-        return FakeEmailService()
 
     @provide(scope=Scope.APP)
     def password_hasher(self) -> IPasswordHasher:

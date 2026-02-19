@@ -5,12 +5,11 @@ __all__ = [
     'IPasswordHasher',
     'IAccessTokenService',
     'IRefreshTokenService',
-    'IEmailService',
     'IClock',
     'IRateLimitStorage',
 ]
 
 from .repositories import IUnitOfWork, IUserRepository, IRefreshSessionRepository
 from .security import IPasswordHasher, IAccessTokenService, IRefreshTokenService
-from .services import IEmailService, IClock
+from .services import IClock
 from .storages import IRateLimitStorage

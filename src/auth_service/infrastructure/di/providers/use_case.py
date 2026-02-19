@@ -6,7 +6,6 @@ from auth_service.application.ports import (
     IRefreshSessionRepository,
     IRefreshTokenService,
     IAccessTokenService,
-    IEmailService,
     IPasswordHasher,
     IClock,
 )
@@ -67,7 +66,6 @@ class UseCaseProvider(Provider):
         uow: IUnitOfWork,
         user_repo: IUserRepository,
         password_hasher: IPasswordHasher,
-        email_service: IEmailService,
         rate_limit_service: RateLimitService,
         email_rate_limit_policy: RegisterEmailRateLimit,
         ip_rate_limit_policy: RegisterIPRateLimit,
@@ -77,7 +75,6 @@ class UseCaseProvider(Provider):
             uow=uow,
             user_repo=user_repo,
             password_hasher=password_hasher,
-            email_service=email_service,
             rate_limit_service=rate_limit_service,
             email_rate_limit_policy=email_rate_limit_policy,
             ip_rate_limit_policy=ip_rate_limit_policy,
