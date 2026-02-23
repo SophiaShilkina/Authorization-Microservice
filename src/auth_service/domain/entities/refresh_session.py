@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from .base import BaseDM
 from ..value_objects import TokenHashVO, ExpiresAtVO
@@ -49,9 +49,12 @@ class RefreshSessionDM(BaseDM):
 
         refresh_session._add_domain_event(
             CreateRefreshSessionEvent(
+                event_id=uuid4(),
+                event_type='auth.refresh_session.create',
                 user_id=refresh_session.user_id,
+                token_hash=refresh_session.token_hash.value,
                 expires_at=refresh_session.expires_at.value,
-                occurred_at=occurred_at
+                occurred_at=occurred_at,
             )
         )
 

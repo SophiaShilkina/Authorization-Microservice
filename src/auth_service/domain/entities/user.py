@@ -67,6 +67,8 @@ class UserDM(BaseDM):
 
         user._add_domain_event(
             UserRegisteredEvent(
+                event_id=uuid4(),
+                event_type='auth.user.register',
                 user_id=user.id,
                 email=user.email.value,
                 username=user.username.value,
