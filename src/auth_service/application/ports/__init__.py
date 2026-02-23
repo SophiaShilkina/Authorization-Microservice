@@ -1,5 +1,6 @@
 __all__ = [
     'IUnitOfWork',
+    'IOutboxRepository',
     'IUserRepository',
     'IRefreshSessionRepository',
     'IPasswordHasher',
@@ -9,7 +10,7 @@ __all__ = [
     'IRateLimitStorage',
 ]
 
-from .repositories import IUnitOfWork, IUserRepository, IRefreshSessionRepository
+from .repositories import IUnitOfWork, IOutboxRepository, IUserRepository, IRefreshSessionRepository
 from .security import IPasswordHasher, IAccessTokenService, IRefreshTokenService
 from .services import IClock
 from .storages import IRateLimitStorage

@@ -2,7 +2,7 @@ from auth_service.domain.value_objects import EmailVO, ExpiresAtVO
 from auth_service.domain.entities import RefreshSessionDM
 from auth_service.domain.exceptions import InvariantViolation
 from ..dto import LoginUserCommand, LoginUserResult
-from ..ports import (IUnitOfWork, IUserRepository, IRefreshSessionRepository, IPasswordHasher,
+from ..ports import (IUnitOfWork, IOutboxRepository, IUserRepository, IRefreshSessionRepository, IPasswordHasher,
                      IRefreshTokenService, IAccessTokenService, IClock)
 from ..services import RateLimitService
 from ..exceptions import AuthenticationFailed
@@ -15,6 +15,7 @@ class LoginUserUseCase:
                  uow: IUnitOfWork,
                  user_repo: IUserRepository,
                  refresh_session_repo: IRefreshSessionRepository,
+                 outbox: IOutboxRepository,
                  password_hasher: IPasswordHasher,
                  refresh_token_service: IRefreshTokenService,
                  access_token_service: IAccessTokenService,
@@ -27,6 +28,7 @@ class LoginUserUseCase:
         self._uow = uow
         self._user_repo = user_repo
         self._refresh_session_repo = refresh_session_repo
+        self._outbox = outbox
         self._password_hasher = password_hasher
         self._refresh_token_service = refresh_token_service
         self._access_token_service = access_token_service
@@ -40,10 +42,10 @@ class LoginUserUseCase:
         await self._rate_limit_service.check(f"login:email:{cmd.email}", self._email_policy)
         await self._rate_limit_service.check(f"login:ip:{cmd.context.ip}", self._ip_policy)
 
+        password = PasswordPolicy(cmd.password)
+
         async with self._uow:
             user = await self._user_repo.get_by_email(EmailVO(cmd.email))
-
-            password = PasswordPolicy(cmd.password)
 
             if not user:
                 self._password_hasher.dummy_verify(password)
@@ -69,12 +71,15 @@ class LoginUserUseCase:
             )
             await self._refresh_session_repo.create(session)
 
-            payload = AccessTokenPayload(
-                user_id=user.id,
-            )
-            access_token = self._access_token_service.issue(payload, now)
+            events = session.pull_domain_events()
+            await self._outbox.add(events)
 
-            return LoginUserResult(
-                access_token=access_token.value,
-                refresh_token=raw_refresh.value,
-            )
+        payload = AccessTokenPayload(
+            user_id=user.id,
+        )
+        access_token = self._access_token_service.issue(payload, now)
+
+        return LoginUserResult(
+            access_token=access_token.value,
+            refresh_token=raw_refresh.value,
+        )

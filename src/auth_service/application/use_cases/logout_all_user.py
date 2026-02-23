@@ -23,14 +23,13 @@ class LogoutAllUserUseCase:
 
     async def execute(self, cmd: LogoutAllUserCommand) -> LogoutAllUserResult:
         payload = self._access_token_service.verify(TokenVO(value=cmd.access_token))
+        user_id = payload.user_id
 
-        await self._rate_limit_service.check(f'logout_all:user_id:{payload.user_id}', self._user_id_policy)
+        await self._rate_limit_service.check(f'logout_all:user_id:{user_id}', self._user_id_policy)
 
         async with self._uow:
-            revoked_count = await self._refresh_session_repo.revoke_all_by_user_id(
-                payload.user_id
-            )
+            revoked_count = await self._refresh_session_repo.revoke_all_by_user_id(user_id)
 
-            return LogoutAllUserResult(
-                revoked_sessions=revoked_count
-            )
+        return LogoutAllUserResult(
+            revoked_sessions=revoked_count
+        )

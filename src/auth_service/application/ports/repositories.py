@@ -3,6 +3,7 @@ from uuid import UUID
 
 from auth_service.domain.entities import UserDM, RefreshSessionDM
 from auth_service.domain.value_objects import EmailVO, TokenHashVO
+from auth_service.domain.events import DomainEvent
 
 
 class IUnitOfWork(Protocol):
@@ -13,6 +14,10 @@ class IUnitOfWork(Protocol):
     async def commit(self): ...
 
     async def rollback(self): ...
+
+
+class IOutboxRepository(Protocol):
+    async def add(self, events: list[DomainEvent]) -> None: ...
 
 
 class IUserRepository(Protocol):

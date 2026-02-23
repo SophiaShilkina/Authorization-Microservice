@@ -34,10 +34,10 @@ class RefreshTokenUseCase:
 
         await self._rate_limit_service.check(f'refresh:token:{refresh_hash.value}', self._token_rl_policy)
 
+        now = self._clock.now()
+
         async with self._uow:
             session = await self._refresh_session_repo.get_by_hash(refresh_hash)
-
-            now = self._clock.now()
 
             if not session or not session.is_valid(now):
                 raise AuthenticationFailed('Invalid or revoked token')
@@ -54,12 +54,12 @@ class RefreshTokenUseCase:
             await self._refresh_session_repo.update(session)
             await self._refresh_session_repo.create(new_session)
 
-            payload = AccessTokenPayload(
-                user_id=session.user_id,
-            )
-            access_token = self._access_token_service.issue(payload, now)
+        payload = AccessTokenPayload(
+            user_id=session.user_id,
+        )
+        access_token = self._access_token_service.issue(payload, now)
 
-            return RefreshTokenResult(
-                access_token=access_token.value,
-                refresh_token=new_raw_refresh.value,
-            )
+        return RefreshTokenResult(
+            access_token=access_token.value,
+            refresh_token=new_raw_refresh.value,
+        )

@@ -1,7 +1,7 @@
 from auth_service.domain.value_objects import EmailVO, UsernameVO
 from auth_service.domain.entities import UserDM
 from ..dto import RegisterUserCommand, RegisterUserResult
-from ..ports import IUnitOfWork, IUserRepository, IPasswordHasher, IClock
+from ..ports import IUnitOfWork, IOutboxRepository, IUserRepository, IPasswordHasher, IClock
 from ..services import RateLimitService
 from ..security.policies import PasswordPolicy, RegisterEmailRateLimit, RegisterIPRateLimit
 from ..exceptions import AlreadyExists
@@ -11,6 +11,7 @@ class RegisterUserUseCase:
     def __init__(self,
                  uow: IUnitOfWork,
                  user_repo: IUserRepository,
+                 outbox: IOutboxRepository,
                  password_hasher: IPasswordHasher,
                  rate_limit_service: RateLimitService,
                  email_rate_limit_policy: RegisterEmailRateLimit,
@@ -19,6 +20,7 @@ class RegisterUserUseCase:
                  ):
         self._uow = uow
         self._user_repo = user_repo
+        self._outbox = outbox
         self._password_hasher = password_hasher
         self._rate_limit_service = rate_limit_service
         self._email_policy = email_rate_limit_policy
@@ -32,20 +34,20 @@ class RegisterUserUseCase:
         email = EmailVO(cmd.email)
         password_hash = self._password_hasher.get_password_hash(PasswordPolicy(cmd.password))
 
-        user = UserDM.register(
-            email=email,
-            username=UsernameVO(cmd.username),
-            password_hash=password_hash,
-            occurred_at=self._clock.now(),
-        )
-
         async with self._uow:
             if await self._user_repo.exists_by_email(email):
                 raise AlreadyExists('User with this email already exists')
 
+            user = UserDM.register(
+                email=email,
+                username=UsernameVO(cmd.username),
+                password_hash=password_hash,
+                occurred_at=self._clock.now(),
+            )
             await self._user_repo.create(user)
 
-        events = user.pull_domain_events()
+            events = user.pull_domain_events()
+            await self._outbox.add(events)
 
         return RegisterUserResult(
             id=user.id,

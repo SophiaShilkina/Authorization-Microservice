@@ -24,9 +24,7 @@ class LogoutUserUseCase:
             if not session:
                 raise AuthenticationFailed('Invalid or revoked token')
 
-            now = self._clock.now()
-
-            if session.is_expired(now):
+            if session.is_expired(self._clock.now()):
                 raise TokenExpired('Token expired')
 
             session.revoke()
