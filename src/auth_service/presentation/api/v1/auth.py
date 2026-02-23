@@ -157,7 +157,7 @@ async def logout_user(
 ):
     refresh_token_value = request.cookies.get(config.cookie.name)
 
-    if not refresh_token:
+    if not refresh_token_value:
         raise HTTPException(status_code=401, detail='Refresh token required')
 
     cmd = LogoutUserCommand(
