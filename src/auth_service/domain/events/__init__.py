@@ -3,9 +3,9 @@ __all__ = [
     'UserDomainEvent',
     'UserRegisteredEvent',
     'RefreshSessionDomainEvent',
-    'CreateRefreshSessionEvent',
+    'RefreshSessionCreatedEvent',
 ]
 
 from .base import DomainEvent
 from .user import UserDomainEvent, UserRegisteredEvent
-from .refresh_session import RefreshSessionDomainEvent, CreateRefreshSessionEvent
+from .refresh_session import RefreshSessionDomainEvent, RefreshSessionCreatedEvent
