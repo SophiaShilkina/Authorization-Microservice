@@ -11,7 +11,7 @@ class RefreshSessionDomainEvent(DomainEvent):
 
 
 @dataclass
-class CreateRefreshSessionEvent(RefreshSessionDomainEvent):
+class RefreshSessionCreatedEvent(RefreshSessionDomainEvent):
     user_id: UUID
     token_hash: str
     expires_at: datetime

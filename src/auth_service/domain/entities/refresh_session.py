@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 from .base import BaseDM
 from ..value_objects import TokenHashVO, ExpiresAtVO
 from ..exceptions import InvariantViolation
-from ..events import CreateRefreshSessionEvent
+from ..events import RefreshSessionCreatedEvent
 
 
 @dataclass(slots=True)
@@ -48,9 +48,8 @@ class RefreshSessionDM(BaseDM):
         )
 
         refresh_session._add_domain_event(
-            CreateRefreshSessionEvent(
+            RefreshSessionCreatedEvent(
                 event_id=uuid4(),
-                event_type='auth.refresh_session.create',
                 user_id=refresh_session.user_id,
                 token_hash=refresh_session.token_hash.value,
                 expires_at=refresh_session.expires_at.value,
