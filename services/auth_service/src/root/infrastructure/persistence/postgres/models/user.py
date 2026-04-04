@@ -4,12 +4,11 @@ from sqlalchemy import String, Boolean
 from .base import BaseORM
 from .mixins import IdUUIDPKMixin, CUDateTimeMixin
 from root.domain.entities import UserDM
-from root.domain.value_objects import EmailVO, UsernameVO, PasswordHashVO
+from root.domain.value_objects import EmailVO, PasswordHashVO
 
 
 class UserORM(IdUUIDPKMixin, CUDateTimeMixin, BaseORM):
     email: Mapped[str] = mapped_column(String, unique=True, index=True)
-    username: Mapped[str] = mapped_column(String, unique=True)
     hashed_password: Mapped[str] = mapped_column(String)
 
     is_active: Mapped[bool] = mapped_column(Boolean)
@@ -25,7 +24,6 @@ class UserORM(IdUUIDPKMixin, CUDateTimeMixin, BaseORM):
         return cls(
             id=user.id,
             email=user.email.value,
-            username=user.username.value,
             hashed_password=user.password_hash.value,
             is_active=user.is_active,
             is_verified=user.is_verified,
@@ -36,7 +34,6 @@ class UserORM(IdUUIDPKMixin, CUDateTimeMixin, BaseORM):
         return UserDM.hydrate(
             id_=self.id,
             email=EmailVO(self.email),
-            username=UsernameVO(self.username),
             password_hash=PasswordHashVO(self.hashed_password),
             is_active=self.is_active,
             is_verified=self.is_verified,

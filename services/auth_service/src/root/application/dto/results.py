@@ -6,7 +6,6 @@ from uuid import UUID
 class RegisterUserResult:
     id: UUID
     email: str
-    username: str
 
 
 @dataclass(frozen=True, slots=True)

@@ -12,4 +12,3 @@ class UserDomainEvent(DomainEvent):
 @dataclass(slots=True, kw_only=True, frozen=True)
 class UserRegisteredEvent(UserDomainEvent):
     email: str
-    username: str

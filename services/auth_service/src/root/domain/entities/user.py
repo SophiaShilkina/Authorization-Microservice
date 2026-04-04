@@ -3,7 +3,7 @@ from uuid import UUID, uuid4
 from datetime import datetime
 
 from .base import BaseDM
-from ..value_objects import EmailVO, UsernameVO, PasswordHashVO
+from ..value_objects import EmailVO, PasswordHashVO
 from ..exceptions import InvariantViolation, BusinessRuleViolation
 from ..events import UserRegisteredEvent
 
@@ -12,7 +12,6 @@ from ..events import UserRegisteredEvent
 class UserDM(BaseDM):
     _id: UUID
     _email: EmailVO
-    _username: UsernameVO
     _password_hash: PasswordHashVO
     _active: bool
     _blocked: bool
@@ -25,10 +24,6 @@ class UserDM(BaseDM):
     @property
     def email(self) -> EmailVO:
         return self._email
-
-    @property
-    def username(self) -> UsernameVO:
-        return self._username
 
     @property
     def password_hash(self) -> PasswordHashVO:
@@ -50,7 +45,6 @@ class UserDM(BaseDM):
     def register(
             cls,
             email: EmailVO,
-            username: UsernameVO,
             password_hash: PasswordHashVO,
             occurred_at: datetime
     ) -> 'UserDM':
@@ -58,7 +52,6 @@ class UserDM(BaseDM):
         user = cls(
             _id=uuid4(),
             _email=email,
-            _username=username,
             _password_hash=password_hash,
             _active=True,
             _verified=False,
@@ -70,7 +63,6 @@ class UserDM(BaseDM):
                 event_id=uuid4(),
                 user_id=user.id,
                 email=user.email.value,
-                username=user.username.value,
                 occurred_at=occurred_at
             )
         )
@@ -83,7 +75,6 @@ class UserDM(BaseDM):
             *,
             id_: UUID,
             email: EmailVO,
-            username: UsernameVO,
             password_hash: PasswordHashVO,
             is_active: bool,
             is_verified: bool,
@@ -92,7 +83,6 @@ class UserDM(BaseDM):
         return cls(
             _id=id_,
             _email=email,
-            _username=username,
             _password_hash=password_hash,
             _active=is_active,
             _verified=is_verified,
@@ -132,11 +122,6 @@ class UserDM(BaseDM):
         if self._email == new_email:
             raise BusinessRuleViolation('New email is the same as current')
         self._email = new_email
-
-    def change_username(self, new_username: UsernameVO) -> None:
-        if self._username == new_username:
-            raise BusinessRuleViolation('New username is the same as current')
-        self._username = new_username
 
     def change_password_hash(self, new_password_hash: PasswordHashVO):
         self._password_hash = new_password_hash

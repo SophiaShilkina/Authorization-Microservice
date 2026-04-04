@@ -23,7 +23,6 @@ async def create_user_registered(
         "payload": {
             "user_id": str(event.user_id),
             "email": event.email,
-            "username": event.username,
         },
     }
 

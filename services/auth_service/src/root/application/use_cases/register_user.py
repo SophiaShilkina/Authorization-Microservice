@@ -1,4 +1,4 @@
-from root.domain.value_objects import EmailVO, UsernameVO
+from root.domain.value_objects import EmailVO
 from root.domain.entities import UserDM
 from ..dto import RegisterUserCommand, RegisterUserResult
 from ..ports import IUnitOfWork, IOutboxRepository, IOutboxMessageFactory, IUserRepository, IPasswordHasher, IClock
@@ -42,7 +42,6 @@ class RegisterUserUseCase:
 
             user = UserDM.register(
                 email=email,
-                username=UsernameVO(cmd.username),
                 password_hash=password_hash,
                 occurred_at=self._clock.now(),
             )
@@ -56,5 +55,4 @@ class RegisterUserUseCase:
         return RegisterUserResult(
             id=user.id,
             email=user.email.value,
-            username=user.username.value,
         )

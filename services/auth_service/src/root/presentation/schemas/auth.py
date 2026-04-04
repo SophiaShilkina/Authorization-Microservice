@@ -12,7 +12,6 @@ class RegisterRequest(BaseModel):
 class RegisterResponse(BaseModel):
     id: UUID
     email: EmailStr
-    username: str
 
 
 class LoginRequest(BaseModel):

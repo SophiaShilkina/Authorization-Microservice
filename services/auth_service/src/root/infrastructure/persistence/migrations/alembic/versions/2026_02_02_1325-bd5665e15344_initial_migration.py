@@ -25,7 +25,6 @@ def upgrade() -> None:
         "users",
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("email", sa.String(), nullable=False),
-        sa.Column("username", sa.String(), nullable=False),
         sa.Column("hashed_password", sa.String(), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column("is_verified", sa.Boolean(), nullable=False),
@@ -43,7 +42,6 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_users")),
-        sa.UniqueConstraint("username", name=op.f("uq_users_username")),
         schema="public",
     )
     op.create_index(

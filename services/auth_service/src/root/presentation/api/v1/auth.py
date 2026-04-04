@@ -38,7 +38,6 @@ async def register_user(
 ):
     cmd = RegisterUserCommand(
         email=str(body.email),
-        username=body.username,
         password=body.password.get_secret_value(),
         context=ContextDTO(
             ip=request.client.host if request.client else None,
@@ -53,7 +52,6 @@ async def register_user(
         'data': {
             'id': result.id,
             'email': result.email,
-            'username': result.username,
         }
     }
 
