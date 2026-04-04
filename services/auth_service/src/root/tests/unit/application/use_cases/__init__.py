@@ -1,0 +1,1 @@
+# pytest root/tests/application/use_cases/ --cov=root.application.use_cases --cov-report=term-missing

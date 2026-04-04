@@ -1,1 +1,0 @@
-# pytest auth_service/tests/application/ --cov=auth_service.application --cov-report=term-missing

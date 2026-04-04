@@ -1,0 +1,1 @@
+# pytest root/tests/domain/ --cov=root.domain --cov-report=term-missing

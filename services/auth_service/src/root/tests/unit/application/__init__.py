@@ -1,0 +1,1 @@
+# pytest root/tests/application/ --cov=root.application --cov-report=term-missing

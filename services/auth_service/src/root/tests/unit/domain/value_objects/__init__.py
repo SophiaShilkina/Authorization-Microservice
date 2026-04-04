@@ -1,0 +1,1 @@
+# pytest root/tests/domain/value_objects/ --cov=root.domain.value_objects --cov-report=term-missing

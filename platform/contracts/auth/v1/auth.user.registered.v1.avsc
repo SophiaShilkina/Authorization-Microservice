@@ -1,0 +1,25 @@
+{
+  "type": "record",
+  "name": "UserRegisteredEvent",
+  "namespace": "platform.auth.v1",
+  "fields": [
+    {"name": "event_id", "type": "string"},
+    {"name": "event_type", "type": "string"},
+    {"name": "schema_version", "type": "int"},
+    {"name": "occurred_at", "type": "string"},
+    {"name": "correlation_id", "type": ["null", "string"], "default": null},
+    {"name": "causation_id", "type": ["null", "string"], "default": null},
+    {
+      "name": "payload",
+      "type": {
+        "type": "record",
+        "name": "UserRegisteredPayload",
+        "fields": [
+          {"name": "user_id", "type": "string"},
+          {"name": "email", "type": "string"},
+          {"name": "username", "type": "string"}
+        ]
+      }
+    }
+  ]
+}

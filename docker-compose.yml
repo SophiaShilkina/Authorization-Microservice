@@ -1,12 +1,40 @@
 services:
-  postgres:
+  auth-service:
+    build:
+      context: ./services/auth_service
+      dockerfile: Dockerfile
+      target: dev
+      additional_contexts:
+        avro_contracts: ./platform/contracts/auth
+    container_name: auth-service
+    depends_on:
+      auth-postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      redpanda:
+        condition: service_started
+    ports:
+      - "8001:8000"
+    working_dir: /app
+    volumes:
+      - ./services/auth_service/src:/app/src
+    restart: unless-stopped
+
+  auth-postgres:
     image: postgres:17-alpine
     environment:
       POSTGRES_DB: auth
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -18,3 +46,61 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    container_name: redpanda
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp=1
+      - --memory=1G
+      - --reserve-memory=0M
+      - --node-id=0
+      - --check=false
+      - --kafka-addr=internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr=internal://redpanda:9092,external://localhost:19092
+      - --pandaproxy-addr=internal://0.0.0.0:8082,external://0.0.0.0:18082
+      - --advertise-pandaproxy-addr=internal://redpanda:8082,external://localhost:18082
+      - --schema-registry-addr=internal://0.0.0.0:8081,external://0.0.0.0:18081
+      - --rpc-addr=redpanda:33145
+      - --advertise-rpc-addr=redpanda:33145
+    ports:
+      - "19092:19092"
+      - "18081:18081"
+      - "18082:18082"
+      - "19644:9644"
+    volumes:
+      - redpanda_data:/var/lib/redpanda/data
+
+  console:
+    image: docker.redpanda.com/redpandadata/console:latest
+    container_name: redpanda-console
+    depends_on:
+      - redpanda
+    environment:
+      KAFKA_BROKERS: redpanda:9092
+      KAFKA_SCHEMAREGISTRY_ENABLED: "true"
+      KAFKA_SCHEMAREGISTRY_URLS: http://redpanda:8081
+    ports:
+      - "8080:8080"
+
+  debezium:
+    image: quay.io/debezium/connect:3.4.3.Final
+    restart: always
+    depends_on:
+      - redpanda
+      - auth-postgres
+    environment:
+      BOOTSTRAP_SERVERS: redpanda:9092
+      GROUP_ID: connect-cluster
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      STATUS_STORAGE_TOPIC: connect_statuses
+    ports:
+      - "8083:8083"
+
+volumes:
+  postgres_data:
+  redpanda_data:

@@ -1,0 +1,28 @@
+# Git
+.git/
+*.gitignore
+
+# Virtual Enviroment
+.venv/
+.env
+.env.*
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverege
+htmlcov
+
+# IDE
+.idea/
+.vscode/
+
+# Application parts
+tests/
+dist/
+build/

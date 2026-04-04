@@ -1,0 +1,26 @@
+{
+  "type": "record",
+  "name": "RefreshSessionCreatedEvent",
+  "namespace": "platform.auth.v1",
+  "fields": [
+    {"name": "event_id", "type": "string"},
+    {"name": "event_type", "type": "string"},
+    {"name": "event_version", "type": "int"},
+    {"name": "producer", "type": "string"},
+    {"name": "occurred_at", "type": "string"},
+    {"name": "correlation_id", "type": ["null", "string"], "default": null},
+    {"name": "causation_id", "type": ["null", "string"], "default": null},
+    {
+      "name": "payload",
+      "type": {
+        "type": "record",
+        "name": "RefreshSessionCreatedPayload",
+        "fields": [
+          {"name": "user_id", "type": "string"},
+          {"name": "token_hash", "type": "string"},
+          {"name": "expires_at", "type": "string"}
+        ]
+      }
+    }
+  ]
+}

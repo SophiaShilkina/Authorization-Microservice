@@ -1,0 +1,5 @@
+topics:
+  - name: auth.events
+    owner: auth-service
+    partitions: 3
+    replication_factor: 1
