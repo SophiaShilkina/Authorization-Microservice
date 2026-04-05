@@ -74,18 +74,6 @@ services:
     volumes:
       - redpanda_data:/var/lib/redpanda/data
 
-  console:
-    image: docker.redpanda.com/redpandadata/console:latest
-    container_name: redpanda-console
-    depends_on:
-      - redpanda
-    environment:
-      KAFKA_BROKERS: redpanda:9092
-      KAFKA_SCHEMAREGISTRY_ENABLED: "true"
-      KAFKA_SCHEMAREGISTRY_URLS: http://redpanda:8081
-    ports:
-      - "8080:8080"
-
   debezium:
     image: quay.io/debezium/connect:3.4.3.Final
     restart: always

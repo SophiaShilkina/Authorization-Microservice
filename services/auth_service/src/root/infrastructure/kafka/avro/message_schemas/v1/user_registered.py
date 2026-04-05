@@ -9,7 +9,7 @@ async def create_user_registered(
         schema_loader: ISchemaLoader,
         schema_registry: ISchemaRegistryClient,
         avro_serializer: IWireFormatSerializer,
-        event: UserRegisteredEvent
+        event: UserRegisteredEvent,
 ) -> OutboxMessage:
     schemas = await schema_loader.load_and_cache('v1', 'auth.user.registered.v1')
 
@@ -26,7 +26,7 @@ async def create_user_registered(
         },
     }
 
-    subject = "outbox.event.auth.user.registered-value"
+    subject = "outbox.event.auth.user.registered.v1-value"
     schema_id = await schema_registry.get_or_register(
         subject=subject,
         schema_str=schemas.raw_json,
