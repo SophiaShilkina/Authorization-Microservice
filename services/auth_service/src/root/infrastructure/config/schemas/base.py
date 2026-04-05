@@ -18,3 +18,4 @@ class ConfigBase(BaseSettings):
 
 class AppConfig(ConfigBase):
     base_dir: Path = Path(__file__).resolve().parent.parent.parent.parent.parent.parent
+    timezone: str = 'UTC'

@@ -82,5 +82,6 @@ class InfrastructureProvider(Provider):
         return ArgonPasswordHasher()
 
     @provide(scope=Scope.APP)
-    def clock(self) -> IClock:
-        return SystemClock()
+    def clock(self, config: Config) -> IClock:
+        app = config.app
+        return SystemClock(tz=app.timezone)
