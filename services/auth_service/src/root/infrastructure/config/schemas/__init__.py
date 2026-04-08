@@ -7,7 +7,7 @@ __all__ = [
     'AccessTokenConfig',
     'RefreshTokenConfig',
     'RateLimitConfig',
-    'KafkaConfig',
+    'RedpandaConfig',
 ]
 
 from .base import AppConfig
@@ -15,4 +15,4 @@ from .persistence import PostgresConfig, RedisConfig
 from .app import FastAPIConfig, CORSConfig, CookieConfig
 from .tokens import AccessTokenConfig, RefreshTokenConfig
 from .throttling import RateLimitConfig
-from .kafka import KafkaConfig
+from .kafka import RedpandaConfig
