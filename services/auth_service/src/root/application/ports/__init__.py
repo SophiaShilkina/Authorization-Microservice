@@ -11,7 +11,8 @@ __all__ = [
     'IOutboxMessageFactory',
 ]
 
-from .repositories import IUnitOfWork, IOutboxRepository, IUserRepository, IRefreshSessionRepository
+from .uow import IUnitOfWork
+from .repositories import IOutboxRepository, IUserRepository, IRefreshSessionRepository
 from .security import IPasswordHasher, IAccessTokenService, IRefreshTokenService
 from .services import IClock
 from .storages import IRateLimitStorage

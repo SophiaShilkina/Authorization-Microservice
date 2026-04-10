@@ -6,18 +6,8 @@ from root.domain.value_objects import EmailVO, TokenHashVO
 from ..security.models import OutboxMessage
 
 
-class IUnitOfWork(Protocol):
-    async def __aenter__(self): ...
-
-    async def __aexit__(self, exc_type, exc, tb): ...
-
-    async def commit(self): ...
-
-    async def rollback(self): ...
-
-
 class IOutboxRepository(Protocol):
-    async def add(self, events: list[OutboxMessage]) -> None: ...
+    async def add(self, messages: list[OutboxMessage]) -> None: ...
 
 
 class IUserRepository(Protocol):
