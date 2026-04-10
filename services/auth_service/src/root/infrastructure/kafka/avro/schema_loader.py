@@ -25,5 +25,5 @@ class FileSystemAvroSchemaLoader(ISchemaLoader):
         parsed = json.loads(raw_json)
 
         loaded = LoadedSchema(raw_json=raw_json, parsed=parsed)
-        self._cache[schema_name] = loaded
+        self._cache[key] = loaded
         return loaded
