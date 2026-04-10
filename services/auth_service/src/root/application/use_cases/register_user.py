@@ -11,7 +11,7 @@ class RegisterUserUseCase:
     def __init__(self,
                  uow: IUnitOfWork,
                  user_repo: IUserRepository,
-                 outbox: IOutboxRepository,
+                 outbox_repo: IOutboxRepository,
                  outbox_message_factory: IOutboxMessageFactory,
                  password_hasher: IPasswordHasher,
                  rate_limit_service: RateLimitService,
@@ -21,7 +21,7 @@ class RegisterUserUseCase:
                  ):
         self._uow = uow
         self._user_repo = user_repo
-        self._outbox = outbox
+        self._outbox = outbox_repo
         self._outbox_message_factory = outbox_message_factory
         self._password_hasher = password_hasher
         self._rate_limit_service = rate_limit_service
