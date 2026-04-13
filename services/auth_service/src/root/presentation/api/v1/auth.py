@@ -19,6 +19,7 @@ from root.application.dto import (
     LogoutAllUserCommand
 )
 from root.infrastructure.config import Config
+from root.infrastructure.persistence.postgres.executors import HttpExecutor
 from root.presentation.api.dependencies import get_bearer_token
 
 router = APIRouter()
@@ -35,6 +36,7 @@ async def register_user(
         body: schemas.RegisterRequest,
         request: Request,
         uc: FromDishka[RegisterUserUseCase],
+        executor: FromDishka[HttpExecutor],
 ):
     cmd = RegisterUserCommand(
         email=str(body.email),
@@ -45,7 +47,7 @@ async def register_user(
         )
     )
 
-    result = await uc.execute(cmd)
+    result = await executor.execute(lambda: uc.execute(cmd))
 
     return {
         'status': 'OK',
@@ -69,6 +71,7 @@ async def login_user(
         request: Request,
         response: Response,
         uc: FromDishka[LoginUserUseCase],
+        executor: FromDishka[HttpExecutor],
         config: FromDishka[Config],
 ):
     cmd = LoginUserCommand(
@@ -80,7 +83,7 @@ async def login_user(
         )
     )
 
-    result = await uc.execute(cmd)
+    result = await executor.execute(lambda: uc.execute(cmd))
 
     response.set_cookie(
         key=config.cookie.name,
@@ -110,6 +113,7 @@ async def refresh_token(
         request: Request,
         response: Response,
         uc: FromDishka[RefreshTokenUseCase],
+        executor: FromDishka[HttpExecutor],
         config: FromDishka[Config],
         access_token: str = Depends(get_bearer_token),
 ):
@@ -123,7 +127,7 @@ async def refresh_token(
         access_token=access_token,
     )
 
-    result = await uc.execute(cmd)
+    result = await executor.execute(lambda: uc.execute(cmd))
 
     response.set_cookie(
         key=config.cookie.name,
@@ -153,6 +157,7 @@ async def logout_user(
         request: Request,
         response: Response,
         uc: FromDishka[LogoutUserUseCase],
+        executor: FromDishka[HttpExecutor],
         config: FromDishka[Config],
 ):
     refresh_token_value = request.cookies.get(config.cookie.name)
@@ -164,7 +169,7 @@ async def logout_user(
         refresh_token=refresh_token_value,
     )
 
-    await uc.execute(cmd)
+    await executor.execute(lambda: uc.execute(cmd))
 
     response.delete_cookie(
         key=config.cookie.name,
@@ -185,6 +190,7 @@ async def logout_user(
 async def logout_all_user(
         response: Response,
         uc: FromDishka[LogoutAllUserUseCase],
+        executor: FromDishka[HttpExecutor],
         config: FromDishka[Config],
         access_token: str = Depends(get_bearer_token),
 ):
@@ -192,7 +198,7 @@ async def logout_all_user(
         access_token=access_token,
     )
 
-    result = await uc.execute(cmd)
+    result = await executor.execute(lambda: uc.execute(cmd))
 
     response.delete_cookie(
         key=config.cookie.name,

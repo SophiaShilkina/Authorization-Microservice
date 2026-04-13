@@ -1,7 +1,7 @@
 from root.domain.value_objects import EmailVO
 from root.domain.entities import UserDM
 from ..dto import RegisterUserCommand, RegisterUserResult
-from ..ports import IUnitOfWork, IOutboxRepository, IOutboxMessageFactory, IUserRepository, IPasswordHasher, IClock
+from ..ports import IOutboxRepository, IOutboxMessageFactory, IUserRepository, IPasswordHasher, IClock
 from ..services import RateLimitService
 from ..security.policies import PasswordPolicy, RegisterEmailRateLimit, RegisterIPRateLimit
 from ..exceptions import AlreadyExists
@@ -9,7 +9,6 @@ from ..exceptions import AlreadyExists
 
 class RegisterUserUseCase:
     def __init__(self,
-                 uow: IUnitOfWork,
                  user_repo: IUserRepository,
                  outbox_repo: IOutboxRepository,
                  outbox_message_factory: IOutboxMessageFactory,
@@ -19,7 +18,6 @@ class RegisterUserUseCase:
                  ip_rate_limit_policy: RegisterIPRateLimit,
                  clock: IClock
                  ):
-        self._uow = uow
         self._user_repo = user_repo
         self._outbox = outbox_repo
         self._outbox_message_factory = outbox_message_factory
@@ -34,23 +32,23 @@ class RegisterUserUseCase:
         await self._rate_limit_service.check(f'register:ip:{cmd.context.ip}', self._ip_policy)
 
         email = EmailVO(cmd.email)
+
+        if await self._user_repo.exists_by_email(email):
+            raise AlreadyExists('User with this email already exists')
+
         password_hash = self._password_hasher.get_password_hash(PasswordPolicy(cmd.password))
 
-        async with self._uow:
-            if await self._user_repo.exists_by_email(email):
-                raise AlreadyExists('User with this email already exists')
+        user = UserDM.register(
+            email=email,
+            password_hash=password_hash,
+            occurred_at=self._clock.now(),
+        )
+        await self._user_repo.create(user)
 
-            user = UserDM.register(
-                email=email,
-                password_hash=password_hash,
-                occurred_at=self._clock.now(),
-            )
-            await self._user_repo.create(user)
-
-            events = user.pull_domain_events()
-            if events:
-                messages = await self._outbox_message_factory.create_many(events)
-                await self._outbox.add(messages)
+        events = user.pull_domain_events()
+        if events:
+            messages = await self._outbox_message_factory.create_many(events)
+            await self._outbox.add(messages)
 
         return RegisterUserResult(
             id=user.id,

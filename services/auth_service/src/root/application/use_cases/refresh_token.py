@@ -1,6 +1,6 @@
 from root.domain.value_objects import TokenVO, ExpiresAtVO
 from ..dto import RefreshTokenCommand, RefreshTokenResult
-from ..ports import IUnitOfWork, IRefreshSessionRepository, IRefreshTokenService, IAccessTokenService, IClock
+from ..ports import IRefreshSessionRepository, IRefreshTokenService, IAccessTokenService, IClock
 from ..services import RateLimitService
 from ..exceptions import AuthenticationFailed
 from ..security.policies import TokenPolicy, RefreshTokenRateLimit, RefreshTokenUserIDRateLimit
@@ -9,7 +9,6 @@ from ..security.models import AccessTokenPayload
 
 class RefreshTokenUseCase:
     def __init__(self,
-                 uow: IUnitOfWork,
                  refresh_session_repo: IRefreshSessionRepository,
                  refresh_token_service: IRefreshTokenService,
                  access_token_service: IAccessTokenService,
@@ -19,7 +18,6 @@ class RefreshTokenUseCase:
                  user_id_rate_limit_policy: RefreshTokenUserIDRateLimit,
                  clock: IClock,
                  ):
-        self._uow = uow
         self._refresh_session_repo = refresh_session_repo
         self._refresh_token_service = refresh_token_service
         self._access_token_service = access_token_service
@@ -36,23 +34,22 @@ class RefreshTokenUseCase:
         payload = self._access_token_service.verify(TokenVO(value=cmd.access_token))
         await self._rate_limit_service.check(f'register:user_id:{payload.user_id}', self._user_id_policy)
 
+        session = await self._refresh_session_repo.get_by_hash(refresh_hash)
+
         now = self._clock.now()
 
-        async with self._uow:
-            session = await self._refresh_session_repo.get_by_hash(refresh_hash)
+        if not session or not session.is_valid(now):
+            raise AuthenticationFailed('Invalid or revoked token')
 
-            if not session or not session.is_valid(now):
-                raise AuthenticationFailed('Invalid or revoked token')
+        new_raw_refresh, new_refresh_hash = self._refresh_token_service.generate()
+        new_session = session.rotate(
+            new_token_hash=new_refresh_hash,
+            expires_at=ExpiresAtVO(now + self._token_policy.refresh_ttl),
+            occurred_at=now
+        )
 
-            new_raw_refresh, new_refresh_hash = self._refresh_token_service.generate()
-            new_session = session.rotate(
-                new_token_hash=new_refresh_hash,
-                expires_at=ExpiresAtVO(now + self._token_policy.refresh_ttl),
-                occurred_at=now
-            )
-
-            await self._refresh_session_repo.update(session)
-            await self._refresh_session_repo.create(new_session)
+        await self._refresh_session_repo.update(session)
+        await self._refresh_session_repo.create(new_session)
 
         payload = AccessTokenPayload(
             user_id=session.user_id,

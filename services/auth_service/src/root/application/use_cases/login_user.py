@@ -2,7 +2,7 @@ from root.domain.value_objects import EmailVO, ExpiresAtVO
 from root.domain.entities import RefreshSessionDM
 from root.domain.exceptions import InvariantViolation
 from ..dto import LoginUserCommand, LoginUserResult
-from ..ports import (IUnitOfWork, IOutboxRepository, IOutboxMessageFactory, IUserRepository, IRefreshSessionRepository,
+from ..ports import (IOutboxRepository, IOutboxMessageFactory, IUserRepository, IRefreshSessionRepository,
                      IPasswordHasher, IRefreshTokenService, IAccessTokenService, IClock)
 from ..services import RateLimitService
 from ..exceptions import AuthenticationFailed
@@ -12,7 +12,6 @@ from ..security.models import AccessTokenPayload
 
 class LoginUserUseCase:
     def __init__(self,
-                 uow: IUnitOfWork,
                  user_repo: IUserRepository,
                  refresh_session_repo: IRefreshSessionRepository,
                  outbox_repo: IOutboxRepository,
@@ -26,7 +25,6 @@ class LoginUserUseCase:
                  ip_rate_limit_policy: LoginIPRateLimit,
                  clock: IClock,
                  ):
-        self._uow = uow
         self._user_repo = user_repo
         self._refresh_session_repo = refresh_session_repo
         self._outbox = outbox_repo
@@ -44,39 +42,37 @@ class LoginUserUseCase:
         await self._rate_limit_service.check(f"login:email:{cmd.email}", self._email_policy)
         await self._rate_limit_service.check(f"login:ip:{cmd.context.ip}", self._ip_policy)
 
+        user = await self._user_repo.get_by_email(EmailVO(cmd.email))
+
         password = PasswordPolicy(cmd.password)
+        if not user:
+            self._password_hasher.dummy_verify(password)
+            raise AuthenticationFailed('Invalid email or password')
 
-        async with self._uow:
-            user = await self._user_repo.get_by_email(EmailVO(cmd.email))
+        if not self._password_hasher.verify(password, user.password_hash):
+            raise AuthenticationFailed('Invalid email or password')
 
-            if not user:
-                self._password_hasher.dummy_verify(password)
-                raise AuthenticationFailed('Invalid email or password')
+        try:
+            user.ensure_can_login()
+        except InvariantViolation as error:
+            raise AuthenticationFailed(str(error))
 
-            if not self._password_hasher.verify(password, user.password_hash):
-                raise AuthenticationFailed('Invalid email or password')
+        raw_refresh, refresh_hash = self._refresh_token_service.generate()
 
-            try:
-                user.ensure_can_login()
-            except InvariantViolation as error:
-                raise AuthenticationFailed(str(error))
+        now = self._clock.now()
 
-            raw_refresh, refresh_hash = self._refresh_token_service.generate()
+        session = RefreshSessionDM.create(
+            user_id=user.id,
+            token_hash=refresh_hash,
+            expires_at=ExpiresAtVO(now + self._token_policy.refresh_ttl),
+            occurred_at=now,
+        )
+        await self._refresh_session_repo.create(session)
 
-            now = self._clock.now()
-
-            session = RefreshSessionDM.create(
-                user_id=user.id,
-                token_hash=refresh_hash,
-                expires_at=ExpiresAtVO(now + self._token_policy.refresh_ttl),
-                occurred_at=now,
-            )
-            await self._refresh_session_repo.create(session)
-
-            events = session.pull_domain_events()
-            if events:
-                messages = await self._outbox_message_factory.create_many(events)
-                await self._outbox.add(messages)
+        events = session.pull_domain_events()
+        if events:
+            messages = await self._outbox_message_factory.create_many(events)
+            await self._outbox.add(messages)
 
         payload = AccessTokenPayload(
             user_id=user.id,

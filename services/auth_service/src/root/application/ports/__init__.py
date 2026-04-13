@@ -1,5 +1,4 @@
 __all__ = [
-    'IUnitOfWork',
     'IOutboxRepository',
     'IUserRepository',
     'IRefreshSessionRepository',
@@ -11,7 +10,6 @@ __all__ = [
     'IOutboxMessageFactory',
 ]
 
-from .uow import IUnitOfWork
 from .repositories import IOutboxRepository, IUserRepository, IRefreshSessionRepository
 from .security import IPasswordHasher, IAccessTokenService, IRefreshTokenService
 from .services import IClock

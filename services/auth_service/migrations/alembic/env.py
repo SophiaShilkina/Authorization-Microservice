@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from root.infrastructure.persistence.postgres.models import BaseORM
+from root.infrastructure.persistence.postgres.sqlalchemy.models import BaseORM
 from root.infrastructure.config import Config
 
 alembic_config = context.config

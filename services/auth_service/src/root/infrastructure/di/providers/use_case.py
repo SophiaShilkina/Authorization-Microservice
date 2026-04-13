@@ -1,7 +1,6 @@
 from dishka import Provider, provide, Scope
 
 from root.application.ports import (
-    IUnitOfWork,
     IUserRepository,
     IRefreshSessionRepository,
     IOutboxRepository,
@@ -36,7 +35,6 @@ class UseCaseProvider(Provider):
     @provide(scope=Scope.REQUEST)
     async def login_user_uc(
         self,
-        uow: IUnitOfWork,
         user_repo: IUserRepository,
         refresh_session_repo: IRefreshSessionRepository,
         outbox_repo: IOutboxRepository,
@@ -51,7 +49,6 @@ class UseCaseProvider(Provider):
         clock: IClock,
     ) -> LoginUserUseCase:
         return LoginUserUseCase(
-            uow=uow,
             user_repo=user_repo,
             refresh_session_repo=refresh_session_repo,
             outbox_repo=outbox_repo,
@@ -69,7 +66,6 @@ class UseCaseProvider(Provider):
     @provide(scope=Scope.REQUEST)
     async def register_user_uc(
         self,
-        uow: IUnitOfWork,
         user_repo: IUserRepository,
         outbox_repo: IOutboxRepository,
         outbox_message_factory: IOutboxMessageFactory,
@@ -80,7 +76,6 @@ class UseCaseProvider(Provider):
         clock: IClock,
     ) -> RegisterUserUseCase:
         return RegisterUserUseCase(
-            uow=uow,
             user_repo=user_repo,
             outbox_repo=outbox_repo,
             outbox_message_factory=outbox_message_factory,
@@ -94,7 +89,6 @@ class UseCaseProvider(Provider):
     @provide(scope=Scope.REQUEST)
     async def refresh_token_uc(
         self,
-        uow: IUnitOfWork,
         refresh_session_repo: IRefreshSessionRepository,
         refresh_token_service: IRefreshTokenService,
         access_token_service: IAccessTokenService,
@@ -105,7 +99,6 @@ class UseCaseProvider(Provider):
         clock: IClock,
     ) -> RefreshTokenUseCase:
         return RefreshTokenUseCase(
-            uow=uow,
             refresh_session_repo=refresh_session_repo,
             refresh_token_service=refresh_token_service,
             access_token_service=access_token_service,
@@ -119,13 +112,11 @@ class UseCaseProvider(Provider):
     @provide(scope=Scope.REQUEST)
     async def logout_user_uc(
         self,
-        uow: IUnitOfWork,
         refresh_session_repo: IRefreshSessionRepository,
         refresh_token_service: IRefreshTokenService,
         clock: IClock,
     ) -> LogoutUserUseCase:
         return LogoutUserUseCase(
-            uow=uow,
             refresh_session_repo=refresh_session_repo,
             refresh_token_service=refresh_token_service,
             clock=clock,
@@ -134,7 +125,6 @@ class UseCaseProvider(Provider):
     @provide(scope=Scope.REQUEST)
     async def logout_all_user_uc(
         self,
-        uow: IUnitOfWork,
         refresh_session_repo: IRefreshSessionRepository,
         access_token_service: IAccessTokenService,
         rate_limit_service: RateLimitService,
@@ -142,7 +132,6 @@ class UseCaseProvider(Provider):
         clock: IClock,
     ) -> LogoutAllUserUseCase:
         return LogoutAllUserUseCase(
-            uow=uow,
             refresh_session_repo=refresh_session_repo,
             access_token_service=access_token_service,
             rate_limit_service=rate_limit_service,

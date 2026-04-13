@@ -6,13 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from root.domain.entities import RefreshSessionDM
 from root.domain.value_objects import TokenHashVO
 from root.application.ports import IRefreshSessionRepository, IClock
-from ..models import RefreshSessionORM
+from root.infrastructure.persistence.postgres.sqlalchemy.models import RefreshSessionORM
 
 
-class SqlAlchemyRefreshSessionRepository(IRefreshSessionRepository, IClock):
+class SqlAlchemyRefreshSessionRepository(IRefreshSessionRepository):
     def __init__(self,
                  session: AsyncSession,
-                 clock: IClock,):
+                 clock: IClock,
+                 ):
         self._session = session
         self._clock = clock
 

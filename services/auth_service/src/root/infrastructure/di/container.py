@@ -1,6 +1,13 @@
 from dishka import make_async_container, AsyncContainer
 
-from .providers import InfrastructureProvider, PolicyProvider, UseCaseProvider, PostgresProvider, KafkaProvider
+from .providers import (
+    InfrastructureProvider,
+    PolicyProvider,
+    UseCaseProvider,
+    PostgresProvider,
+    KafkaProvider,
+    ExecutorProvider
+)
 from ..config import Config
 
 
@@ -13,5 +20,6 @@ def create_container() -> AsyncContainer:
         UseCaseProvider(),
         PostgresProvider(),
         KafkaProvider(),
+        ExecutorProvider(),
         context={Config: config},
     )

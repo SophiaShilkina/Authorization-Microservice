@@ -3,9 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...persistence.redis.client import RedisClient
 
-from ...persistence.postgres.uow import SqlAlchemyUnitOfWork
-from ...persistence.postgres.repositories import (SqlAlchemyUserRepository, SqlAlchemyRefreshSessionRepository,
-                                                  SqlAlchemyOutboxRepository)
+from root.infrastructure.persistence.postgres.sqlalchemy.repositories import (
+    SqlAlchemyUserRepository, SqlAlchemyRefreshSessionRepository, SqlAlchemyOutboxRepository
+)
 from ...persistence.redis.storages import RedisRateLimitStorage
 from ...security.tokens import JoseAccessTokenService, RandomRefreshTokenService
 from ...security.password import ArgonPasswordHasher
@@ -22,7 +22,7 @@ from root.application.ports import (
     IRefreshTokenService,
     IAccessTokenService,
     IPasswordHasher,
-    IClock, IUnitOfWork,
+    IClock,
 )
 
 
@@ -42,10 +42,6 @@ class InfrastructureProvider(Provider):
         return RedisRateLimitStorage(redis_client)
 
     # ===============================
-
-    @provide(scope=Scope.REQUEST)
-    def uow(self, session: AsyncSession) -> IUnitOfWork:
-        return SqlAlchemyUnitOfWork(session)
 
     @provide(scope=Scope.REQUEST)
     def user_repository(self, session: AsyncSession) -> IUserRepository:

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from root.domain.entities import UserDM
 from root.domain.value_objects import EmailVO
 from root.application.ports import IUserRepository
-from ..models import UserORM
+from root.infrastructure.persistence.postgres.sqlalchemy.models import UserORM
 
 
 class SqlAlchemyUserRepository(IUserRepository):
