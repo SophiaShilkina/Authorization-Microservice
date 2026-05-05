@@ -11,9 +11,7 @@ from .providers import (
 from ..config import Config
 
 
-def create_container() -> AsyncContainer:
-    config = Config.load()
-
+def create_container(config: Config) -> AsyncContainer:
     return make_async_container(
         InfrastructureProvider(),
         PolicyProvider(),
