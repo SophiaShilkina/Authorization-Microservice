@@ -1,10 +1,11 @@
 from root.domain.value_objects import TokenVO, ExpiresAtVO
-from ..dto import RefreshTokenCommand, RefreshTokenResult
+from ..schemas.commands import RefreshTokenCommand
+from ..schemas.results import RefreshTokenResult
 from ..ports import IRefreshSessionRepository, IRefreshTokenService, IAccessTokenService, IClock
 from ..services import RateLimitService
 from ..exceptions import AuthenticationFailed
 from ..security.policies import TokenPolicy, RefreshTokenRateLimit, RefreshTokenUserIDRateLimit
-from ..security.models import AccessTokenPayload
+from ..schemas.models import AccessTokenPayload
 
 
 class RefreshTokenUseCase:

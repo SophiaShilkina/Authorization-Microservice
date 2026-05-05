@@ -3,7 +3,7 @@ from uuid import uuid4, UUID
 
 from root.domain.value_objects import TokenVO
 from root.application.ports import IAccessTokenService
-from root.application.security.models import AccessTokenPayload
+from root.application.schemas.models import AccessTokenPayload
 from root.infrastructure.exceptions import InvalidAccessToken
 
 from jose import jwt, JWTError

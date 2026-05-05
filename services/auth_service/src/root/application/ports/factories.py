@@ -1,7 +1,7 @@
 from typing import Protocol
 
 from root.domain.events import DomainEvent
-from ..security.models import OutboxMessage
+from ..schemas.models import OutboxMessage
 
 
 class IOutboxMessageFactory(Protocol):

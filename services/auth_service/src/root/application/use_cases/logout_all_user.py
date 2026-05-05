@@ -1,5 +1,6 @@
 from root.domain.value_objects import TokenVO
-from ..dto import LogoutAllUserCommand, LogoutAllUserResult
+from ..schemas.commands import LogoutAllUserCommand
+from ..schemas.results import LogoutAllUserResult
 from ..ports import IRefreshSessionRepository, IAccessTokenService, IClock
 from ..services import RateLimitService
 from ..security.policies import LogoutAllRateLimit

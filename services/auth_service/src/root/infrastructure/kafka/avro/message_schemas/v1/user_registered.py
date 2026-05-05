@@ -1,7 +1,7 @@
 from datetime import timezone
 
 from root.domain.events import UserRegisteredEvent
-from root.application.security.models import OutboxMessage
+from root.application.schemas.models import OutboxMessage
 from ....ports import ISchemaLoader, ISchemaRegistryClient, IWireFormatSerializer
 
 
@@ -13,16 +13,19 @@ async def create_user_registered(
 ) -> OutboxMessage:
     schemas = await schema_loader.load_and_cache('v1', 'auth.user.registered.v1')
 
+    occurred_at_millis = int(event.occurred_at.astimezone(timezone.utc).timestamp() * 1000)
+
     envelope = {
         "event_id": str(event.event_id),
         "event_type": "auth.user.registered",
         "schema_version": 1,
-        "occurred_at": event.occurred_at.astimezone(timezone.utc).isoformat(),
+        "occurred_at": occurred_at_millis,
         "correlation_id": None,
         "causation_id": None,
         "payload": {
             "user_id": str(event.user_id),
             "email": event.email,
+            "registered_at": occurred_at_millis,
         },
     }
 

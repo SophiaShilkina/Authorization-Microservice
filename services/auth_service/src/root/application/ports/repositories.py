@@ -3,7 +3,7 @@ from uuid import UUID
 
 from root.domain.entities import UserDM, RefreshSessionDM
 from root.domain.value_objects import EmailVO, TokenHashVO
-from ..security.models import OutboxMessage
+from ..schemas.models import OutboxMessage
 
 
 class IOutboxRepository(Protocol):

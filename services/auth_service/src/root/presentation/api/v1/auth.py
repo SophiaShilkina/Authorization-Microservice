@@ -10,7 +10,7 @@ from root.application.use_cases import (
     LogoutUserUseCase,
     LogoutAllUserUseCase
 )
-from root.application.dto import (
+from root.application.schemas.commands import (
     ContextDTO,
     LoginUserCommand,
     RegisterUserCommand,

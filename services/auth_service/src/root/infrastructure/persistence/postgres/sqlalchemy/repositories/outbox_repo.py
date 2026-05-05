@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from root.application.ports import IOutboxRepository
-from root.application.security.models import OutboxMessage
+from root.application.schemas.models import OutboxMessage
 from root.infrastructure.persistence.postgres.sqlalchemy.models import OutboxORM
 
 

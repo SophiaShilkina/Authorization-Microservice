@@ -1,13 +1,14 @@
 from root.domain.value_objects import EmailVO, ExpiresAtVO
 from root.domain.entities import RefreshSessionDM
 from root.domain.exceptions import InvariantViolation
-from ..dto import LoginUserCommand, LoginUserResult
+from ..schemas.commands import LoginUserCommand
+from ..schemas.results import LoginUserResult
 from ..ports import (IOutboxRepository, IOutboxMessageFactory, IUserRepository, IRefreshSessionRepository,
                      IPasswordHasher, IRefreshTokenService, IAccessTokenService, IClock)
 from ..services import RateLimitService
 from ..exceptions import AuthenticationFailed
 from ..security.policies import TokenPolicy, PasswordPolicy, LoginIPRateLimit, LoginEmailRateLimit
-from ..security.models import AccessTokenPayload
+from ..schemas.models import AccessTokenPayload
 
 
 class LoginUserUseCase:

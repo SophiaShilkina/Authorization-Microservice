@@ -1,5 +1,5 @@
 from root.domain.value_objects import TokenVO
-from ..dto import LogoutUserCommand
+from ..schemas.commands import LogoutUserCommand
 from ..ports import IRefreshSessionRepository, IRefreshTokenService, IClock
 from ..exceptions import AuthenticationFailed, TokenExpired
 

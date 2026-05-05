@@ -1,6 +1,6 @@
 from root.domain.events import DomainEvent, UserRegisteredEvent
 from root.application.ports import IOutboxMessageFactory
-from root.application.security.models import OutboxMessage
+from root.application.schemas.models import OutboxMessage
 from ..ports import ISchemaRegistryClient, IWireFormatSerializer, ISchemaLoader
 from .message_schemas import v1
 

@@ -1,6 +1,7 @@
 from root.domain.value_objects import EmailVO
 from root.domain.entities import UserDM
-from ..dto import RegisterUserCommand, RegisterUserResult
+from ..schemas.commands import RegisterUserCommand
+from ..schemas.results import RegisterUserResult
 from ..ports import IOutboxRepository, IOutboxMessageFactory, IUserRepository, IPasswordHasher, IClock
 from ..services import RateLimitService
 from ..security.policies import PasswordPolicy, RegisterEmailRateLimit, RegisterIPRateLimit

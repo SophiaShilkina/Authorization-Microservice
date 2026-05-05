@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, DateTime, LargeBinary
 
-from root.application.security.models import OutboxMessage
+from root.application.schemas.models import OutboxMessage
 from .base import BaseORM
 from .mixins import IdUUIDPKMixin, CDateTimeMixin
 

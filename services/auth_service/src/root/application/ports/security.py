@@ -3,7 +3,7 @@ from datetime import datetime
 
 from root.domain.value_objects import TokenVO, TokenHashVO, PasswordHashVO
 from ..security.policies import PasswordPolicy
-from ..security.models import AccessTokenPayload
+from ..schemas.models import AccessTokenPayload
 
 
 class IPasswordHasher(Protocol):
