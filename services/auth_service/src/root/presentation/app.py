@@ -4,7 +4,7 @@ from dishka.integrations.fastapi import setup_dishka
 
 from .middleware import create_middleware
 from .api import current_router
-from .exception_handlers import register_exception_handlers
+from .exceptions import register_exception_handlers
 from root.infrastructure.config import Config
 from root.infrastructure.di import create_container
 
